@@ -33,7 +33,7 @@ fn read_account_data(account: &Account) {
 pub fn read_account(address: &str) {
     let account = get_account(address);
     print_struct(&account);
-    if !account.data.is_empty() {
+    if !account.data.is_empty() && !account.executable {
         read_account_data(&account);
     }
 }
