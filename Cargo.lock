@@ -3423,7 +3423,7 @@ dependencies = [
 
 [[package]]
 name = "solana-explorer-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap 4.5.7",
  "solana-client",
