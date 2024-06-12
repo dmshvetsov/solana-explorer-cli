@@ -2,8 +2,18 @@
 name = "solana-explorer-cli"
 version = "0.1.0"
 edition = "2021"
+authors = ["Dmitry Shvetsov <shvetsovdm+solana-explorer-cli@gmail.com>"]
+license = "MIT"
+description = "Command line interface to explorer solana blockchain state"
+readme = "README.md"
+homepage = "https://github.com/dmshvetsov/solana-explorer-cli"
+repository = "https://github.com/dmshvetsov/solana-explorer-cli"
+keywords = ["cli", "solana", "explorer"]
+categories = ["command-line-utilities"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "se"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.7", features = ["derive"] }
