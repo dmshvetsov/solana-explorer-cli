@@ -1,6 +1,6 @@
 [package]
 name = "solana-explorer-cli"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Dmitry Shvetsov <shvetsovdm+solana-explorer-cli@gmail.com>"]
 license = "MIT"
