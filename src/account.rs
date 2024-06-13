@@ -1,9 +1,15 @@
-use solana_client::{client_error::ClientError as RpcClientError, rpc_client::RpcClient};
+use serde::Deserialize;
+use serde_json::json;
+use solana_client::{
+    client_error::ClientError as RpcClientError,
+    rpc_client::RpcClient,
+    rpc_request::{self},
+};
 use solana_sdk::{
     account::Account, commitment_config::CommitmentConfig, program_pack::Pack, pubkey::Pubkey,
 };
 use spl_token;
-use std::{error::Error, fmt::Debug, str::FromStr};
+use std::{env, error::Error, fmt::Debug, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
@@ -35,18 +41,30 @@ pub fn read_account(address: &str) {
             return;
         }
     };
-    let account = match get_account(&acc_pubkey) {
-        Ok(account) => account,
+    match get_account(&acc_pubkey) {
+        Ok(account) => {
+            print_struct(&account);
+            if !account.data.is_empty() && !account.executable {
+                read_account_data(&account);
+            }
+        }
         Err(err) => {
+            if err.kind.to_string() == format!("AccountNotFound: pubkey={}", acc_pubkey) {
+                let asset = get_das_asset(&acc_pubkey);
+                if asset.is_ok() {
+                    print_struct(&asset);
+                }
+            }
             print_error(err);
-            return;
         }
     };
+}
 
-    print_struct(&account);
-    if !account.data.is_empty() && !account.executable {
-        read_account_data(&account);
-    }
+/// Metaplex Digital Asset Standard item
+#[derive(Deserialize, Debug)]
+struct DasAsset {
+    // TODO: add rest of Asset fields https://github.com/metaplex-foundation/digital-asset-standard-api/blob/main/clients/js/src/types.ts#L154
+    id: String,
 }
 
 fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
@@ -54,11 +72,19 @@ fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
     rpc.get_account(pubkey)
 }
 
-fn init_connection() -> RpcClient {
-    RpcClient::new_with_commitment(
-        String::from("http://api.mainnet-beta.solana.com"),
-        CommitmentConfig::confirmed(),
+fn get_das_asset(pubkey: &Pubkey) -> Result<DasAsset, RpcClientError> {
+    let rpc = init_connection();
+    // TODO: handle RpcError RpcResponseError message: "Method not found"
+    rpc.send::<DasAsset>(
+        rpc_request::RpcRequest::Custom { method: "getAsset" },
+        json!([pubkey.to_string()]),
     )
+}
+
+fn init_connection() -> RpcClient {
+    let rpc_url =
+        env::var("SE_RPC_URL").unwrap_or("http://api.mainnet-beta.solana.com".to_string());
+    RpcClient::new_with_commitment(rpc_url, CommitmentConfig::confirmed())
 }
 
 fn print_struct<T: Debug>(data_struct: T) {

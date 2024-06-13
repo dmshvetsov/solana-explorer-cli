@@ -3426,6 +3426,8 @@ name = "solana-explorer-cli"
 version = "0.1.1"
 dependencies = [
  "clap 4.5.7",
+ "serde",
+ "serde_json",
  "solana-client",
  "solana-sdk",
  "spl-token",
