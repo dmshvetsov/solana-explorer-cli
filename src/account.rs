@@ -1,19 +1,14 @@
-use solana_client::rpc_client::RpcClient;
+use solana_client::{client_error::ClientError as RpcClientError, rpc_client::RpcClient};
 use solana_sdk::{
     account::Account, commitment_config::CommitmentConfig, program_pack::Pack, pubkey::Pubkey,
 };
 use spl_token;
-use std::{fmt::Debug, str::FromStr};
-
-fn get_account(address: &str) -> Account {
-    let rpc = init_connection();
-    rpc.get_account(&Pubkey::from_str(address).unwrap())
-        .unwrap()
-}
+use std::{error::Error, fmt::Debug, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
-        panic!("account has empty data");
+        print_warning("account has empty data");
+        return;
     }
 
     match account.owner.to_string().as_str() {
@@ -26,16 +21,37 @@ fn read_account_data(account: &Account) {
                 print_struct(spl_token::state::Account::unpack(&account.data).unwrap());
             }
         }
-        _ => panic!("not implemented"),
+        _ => todo!(),
     }
 }
 
 pub fn read_account(address: &str) {
-    let account = get_account(address);
+    let acc_pubkey = match Pubkey::from_str(address) {
+        Ok(pubkey) => pubkey,
+        Err(_) => {
+            print_warning(
+                format!("adress {:?} is not a valid Solana public key", address).as_str(),
+            );
+            return;
+        }
+    };
+    let account = match get_account(&acc_pubkey) {
+        Ok(account) => account,
+        Err(err) => {
+            print_error(err);
+            return;
+        }
+    };
+
     print_struct(&account);
     if !account.data.is_empty() && !account.executable {
         read_account_data(&account);
     }
+}
+
+fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
+    let rpc = init_connection();
+    rpc.get_account(pubkey)
 }
 
 fn init_connection() -> RpcClient {
@@ -53,4 +69,12 @@ fn print_struct<T: Debug>(data_struct: T) {
         type_prefix = type_prefix.strip_prefix('&').unwrap().to_string();
     }
     println!("{}::{:#?}", type_prefix, data_struct);
+}
+
+fn print_warning(msg: &str) {
+    println!("{}", msg);
+}
+
+fn print_error<T: Error>(err: T) {
+    println!("{}", err);
 }
