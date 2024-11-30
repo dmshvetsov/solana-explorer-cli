@@ -8,7 +8,7 @@ use solana_client::{
 use solana_sdk::{
     account::Account, commitment_config::CommitmentConfig, program_pack::Pack, pubkey::Pubkey,
 };
-use std::{env, error::Error, fmt::Debug, process::exit, str::FromStr};
+use std::{env, error::Error, fmt::Debug, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
@@ -48,12 +48,6 @@ pub fn read_account(address: &str) {
             Ok(asset) => print_struct(asset),
             Err(err) => print_error(err),
         }
-        // if asset.is_ok() {
-        //
-        // } else {
-        //     print_error(asset.err().unwrap());
-        //     exit(1)
-        // }
         return;
     }
 
