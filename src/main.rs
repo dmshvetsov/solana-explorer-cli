@@ -2,6 +2,7 @@ mod account;
 mod metaplex {
     pub mod das;
 }
+mod magiceden;
 
 use account::read_account;
 use clap::{Args, Parser, Subcommand};

@@ -1,4 +1,5 @@
-use crate::metaplex::das;
+use crate::{magiceden::cm, metaplex::das};
+use anchor_lang::AnchorDeserialize;
 use serde_json::json;
 use solana_client::{
     client_error::ClientError as RpcClientError,
@@ -17,6 +18,7 @@ fn read_account_data(account: &Account) {
     }
 
     match account.owner.to_string().as_str() {
+        // Token Program
         "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
             print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
             // if account.data.starts_with(&[1, 0, 0, 0]) {
@@ -26,6 +28,10 @@ fn read_account_data(account: &Account) {
             //     // SPL Token account
             //     print_struct(spl_token::state::Account::unpack(&account.data).unwrap());
             // }
+        }
+        // Magic Eden Candy Machine
+        "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {
+            print_struct(cm::CandyMachine::deserialize(&mut &account.data[8..]).unwrap());
         }
         _ => todo!(),
     }
