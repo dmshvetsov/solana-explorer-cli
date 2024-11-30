@@ -12,20 +12,20 @@ use std::{env, error::Error, fmt::Debug, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
-        print_warning("account has empty data");
+        print_warning("data: empty");
         return;
     }
 
     match account.owner.to_string().as_str() {
-        // TODO: use TokenProgram variable from solana crates instrad hardcoded string
         "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
-            if account.data.starts_with(&[1, 0, 0, 0]) {
-                // SPL Mint
-                print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
-            } else {
-                // SPL Token account
-                print_struct(spl_token::state::Account::unpack(&account.data).unwrap());
-            }
+            print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
+            // if account.data.starts_with(&[1, 0, 0, 0]) {
+            //     // SPL Mint
+            //     print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
+            // } else {
+            //     // SPL Token account
+            //     print_struct(spl_token::state::Account::unpack(&account.data).unwrap());
+            // }
         }
         _ => todo!(),
     }
