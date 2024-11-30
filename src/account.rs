@@ -8,7 +8,7 @@ use solana_client::{
 use solana_sdk::{
     account::Account, commitment_config::CommitmentConfig, program_pack::Pack, pubkey::Pubkey,
 };
-use std::{env, error::Error, fmt::Debug, str::FromStr};
+use std::{env, error::Error, fmt::Debug, process::exit, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
@@ -42,15 +42,6 @@ pub fn read_account(address: &str) {
         }
     };
 
-    if !acc_pubkey.is_on_curve() {
-        // most likely a DAS address
-        match get_das_asset(&acc_pubkey) {
-            Ok(asset) => print_struct(asset),
-            Err(err) => print_error(err),
-        }
-        return;
-    }
-
     match get_account(&acc_pubkey) {
         Ok(account) => {
             print_struct(&account);
@@ -59,7 +50,16 @@ pub fn read_account(address: &str) {
             }
         }
         Err(err) => {
+            if err.kind.to_string() == format!("AccountNotFound: pubkey={}", acc_pubkey) {
+                // it can be a Metaplex Digital asset
+                let asset = get_das_asset(&acc_pubkey);
+                if asset.is_ok() {
+                    print_struct(&asset);
+                    return;
+                }
+            }
             print_error(err);
+            exit(1);
         }
     };
 }
