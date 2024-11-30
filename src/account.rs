@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use crate::metaplex::das;
 use serde_json::json;
 use solana_client::{
     client_error::ClientError as RpcClientError,
@@ -8,8 +8,7 @@ use solana_client::{
 use solana_sdk::{
     account::Account, commitment_config::CommitmentConfig, program_pack::Pack, pubkey::Pubkey,
 };
-use spl_token;
-use std::{env, error::Error, fmt::Debug, str::FromStr};
+use std::{env, error::Error, fmt::Debug, process::exit, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
@@ -18,6 +17,7 @@ fn read_account_data(account: &Account) {
     }
 
     match account.owner.to_string().as_str() {
+        // TODO: use TokenProgram variable from solana crates instrad hardcoded string
         "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
             if account.data.starts_with(&[1, 0, 0, 0]) {
                 // SPL Mint
@@ -36,11 +36,27 @@ pub fn read_account(address: &str) {
         Ok(pubkey) => pubkey,
         Err(_) => {
             print_warning(
-                format!("adress {:?} is not a valid Solana public key", address).as_str(),
+                format!("address {:?} is not a valid Solana public key", address).as_str(),
             );
             return;
         }
     };
+
+    if !acc_pubkey.is_on_curve() {
+        // most likely a DAS address
+        match get_das_asset(&acc_pubkey) {
+            Ok(asset) => print_struct(asset),
+            Err(err) => print_error(err),
+        }
+        // if asset.is_ok() {
+        //
+        // } else {
+        //     print_error(asset.err().unwrap());
+        //     exit(1)
+        // }
+        return;
+    }
+
     match get_account(&acc_pubkey) {
         Ok(account) => {
             print_struct(&account);
@@ -49,22 +65,9 @@ pub fn read_account(address: &str) {
             }
         }
         Err(err) => {
-            if err.kind.to_string() == format!("AccountNotFound: pubkey={}", acc_pubkey) {
-                let asset = get_das_asset(&acc_pubkey);
-                if asset.is_ok() {
-                    print_struct(&asset);
-                }
-            }
             print_error(err);
         }
     };
-}
-
-/// Metaplex Digital Asset Standard item
-#[derive(Deserialize, Debug)]
-struct DasAsset {
-    // TODO: add rest of Asset fields https://github.com/metaplex-foundation/digital-asset-standard-api/blob/main/clients/js/src/types.ts#L154
-    id: String,
 }
 
 fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
@@ -72,10 +75,10 @@ fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
     rpc.get_account(pubkey)
 }
 
-fn get_das_asset(pubkey: &Pubkey) -> Result<DasAsset, RpcClientError> {
+fn get_das_asset(pubkey: &Pubkey) -> Result<das::Asset, RpcClientError> {
     let rpc = init_connection();
     // TODO: handle RpcError RpcResponseError message: "Method not found"
-    rpc.send::<DasAsset>(
+    rpc.send::<das::Asset>(
         rpc_request::RpcRequest::Custom { method: "getAsset" },
         json!([pubkey.to_string()]),
     )

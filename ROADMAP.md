@@ -1,0 +1,3 @@
+- cant read So11111111111111111111111111111111111111112 token account
+- read CM account state
+- use connection from solana config if present, but env var have higher priority over solana config

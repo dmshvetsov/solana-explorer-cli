@@ -1,4 +1,7 @@
-pub mod account;
+mod account;
+mod metaplex {
+    pub mod das;
+}
 
 use account::read_account;
 use clap::{Args, Parser, Subcommand};
