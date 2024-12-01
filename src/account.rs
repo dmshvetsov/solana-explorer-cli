@@ -1,15 +1,14 @@
-use crate::{magiceden::cm, metaplex::das};
+use crate::{magiceden::cm, metaplex::das, rpc};
 use anchor_lang::AnchorDeserialize;
 use serde_json::json;
 use solana_client::{
     client_error::ClientError as RpcClientError,
-    rpc_client::RpcClient,
     rpc_request::{self},
 };
 use solana_sdk::{
-    account::Account, commitment_config::CommitmentConfig, program_pack::Pack, pubkey::Pubkey,
+    account::Account, program_pack::Pack, pubkey::Pubkey,
 };
-use std::{env, error::Error, fmt::Debug, process::exit, str::FromStr};
+use std::{error::Error, fmt::Debug, process::exit, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
@@ -71,23 +70,17 @@ pub fn read_account(address: &str) {
 }
 
 fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
-    let rpc = init_connection();
-    rpc.get_account(pubkey)
+    let rpc_con = rpc::init_connection();
+    rpc_con.get_account(pubkey)
 }
 
 fn get_das_asset(pubkey: &Pubkey) -> Result<das::Asset, RpcClientError> {
-    let rpc = init_connection();
+    let rpc_con = rpc::init_connection();
     // TODO: handle RpcError RpcResponseError message: "Method not found"
-    rpc.send::<das::Asset>(
+    rpc_con.send::<das::Asset>(
         rpc_request::RpcRequest::Custom { method: "getAsset" },
         json!([pubkey.to_string()]),
     )
-}
-
-fn init_connection() -> RpcClient {
-    let rpc_url =
-        env::var("SE_RPC_URL").unwrap_or("http://api.mainnet-beta.solana.com".to_string());
-    RpcClient::new_with_commitment(rpc_url, CommitmentConfig::confirmed())
 }
 
 fn print_struct<T: Debug>(data_struct: T) {

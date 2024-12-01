@@ -1,3 +1,4 @@
+mod rpc;
 mod account;
 mod transaction;
 mod metaplex {
