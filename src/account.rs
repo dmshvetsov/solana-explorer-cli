@@ -1,4 +1,4 @@
-use crate::{magiceden::cm, metaplex::das, rpc};
+use crate::{magiceden::cm, metaplex::das, output::{print_error, print_struct, print_warning}, rpc};
 use anchor_lang::AnchorDeserialize;
 use serde_json::json;
 use solana_client::{
@@ -81,22 +81,4 @@ fn get_das_asset(pubkey: &Pubkey) -> Result<das::Asset, RpcClientError> {
         rpc_request::RpcRequest::Custom { method: "getAsset" },
         json!([pubkey.to_string()]),
     )
-}
-
-fn print_struct<T: Debug>(data_struct: T) {
-    let type_name = std::any::type_name::<T>().split("::");
-    let size = type_name.clone().count();
-    let mut type_prefix = type_name.take(size - 1).collect::<Vec<&str>>().join("::");
-    if type_prefix.starts_with('&') {
-        type_prefix = type_prefix.strip_prefix('&').unwrap().to_string();
-    }
-    println!("{}::{:#?}", type_prefix, data_struct);
-}
-
-fn print_warning(msg: &str) {
-    println!("{}", msg);
-}
-
-fn print_error<T: Error>(err: T) {
-    println!("{}", err);
 }
