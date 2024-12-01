@@ -1,2 +1,2 @@
-- read CM account state
+- read tx
 - use connection from solana config if present, but env var have higher priority over solana config
