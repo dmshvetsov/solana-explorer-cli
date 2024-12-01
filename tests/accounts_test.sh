@@ -18,3 +18,6 @@ $SE account 4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 
 echo "\n\nCandy Machine"
 $SE account Aq9PkNTgWdmhA24xAcKYYZwLDo1CfEUk6EqrZ87RsuEJ
+
+echo "\n\ntx WSOL -> GOAT on Raydium swap"
+$SE transaction 44cfUnsmWHfS1Kz4PcF9Rj4XoLSivfTYPunTQRLnvqAfhBqrYUV2mWoJUXr5goKAUqVp4g4XWBgLJ9rSYva7cxqq
