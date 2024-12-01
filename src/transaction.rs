@@ -29,7 +29,7 @@ fn get_tx(
     let rpc_con = rpc::init_connection();
     // This method uses the Finalized commitment level
     let conf = RpcTransactionConfig {
-        encoding: Some(UiTransactionEncoding::Json),
+        encoding: Some(UiTransactionEncoding::JsonParsed),
         commitment: Some(CommitmentConfig::confirmed()),
         max_supported_transaction_version: Some(0),
     };
