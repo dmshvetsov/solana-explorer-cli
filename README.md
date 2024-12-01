@@ -4,7 +4,7 @@ Read Solana Blockchain state from your terminal.
 
 ## Requirements
 
-* Rust `>=1.75`
+* Rust `>=1.79`
 
 ## Installation
 
