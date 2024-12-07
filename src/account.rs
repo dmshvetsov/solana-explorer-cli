@@ -1,14 +1,24 @@
-use crate::{magiceden::cm, metaplex::das, output::{print_error, print_struct, print_warning}, rpc};
+use crate::{
+    magiceden::cm,
+    metaplex::das,
+    output::{print_error, print_struct, print_warning},
+    rpc,
+};
+use anchor_lang::idl::IdlAccount;
 use anchor_lang::AnchorDeserialize;
+use flate2::read::ZlibDecoder;
 use serde_json::json;
 use solana_client::{
     client_error::ClientError as RpcClientError,
     rpc_request::{self},
 };
 use solana_sdk::{
-    account::Account, program_pack::Pack, pubkey::Pubkey,
+    account::{Account, ReadableAccount},
+    program_pack::Pack,
+    pubkey::Pubkey,
 };
-use std::{error::Error, fmt::Debug, process::exit, str::FromStr};
+use std::io::prelude::*;
+use std::{process::exit, str::FromStr};
 
 fn read_account_data(account: &Account) {
     if account.data.is_empty() {
@@ -36,6 +46,22 @@ fn read_account_data(account: &Account) {
     }
 }
 
+fn read_program_idl(pubkey: &Pubkey) {
+    let idl_addr = IdlAccount::address(pubkey);
+    let idl_acc = get_account(&idl_addr).unwrap();
+    let discrimintaor_size = 8;
+    let idl: IdlAccount =
+        AnchorDeserialize::deserialize(&mut &idl_acc.data()[discrimintaor_size..]).unwrap();
+    let compressed_len: usize = idl.data_len.try_into().unwrap();
+    let mut decoder = ZlibDecoder::new(&idl_acc.data[44..44 + compressed_len]);
+    let mut s = Vec::new();
+    decoder.read_to_end(&mut s).unwrap();
+    println!("{}",
+        serde_json::to_string_pretty(&serde_json::from_slice::<serde_json::Value>(&s[..]).unwrap())
+            .unwrap(),
+    );
+}
+
 pub fn read_account(address: &str) {
     let acc_pubkey = match Pubkey::from_str(address) {
         Ok(pubkey) => pubkey,
@@ -50,7 +76,9 @@ pub fn read_account(address: &str) {
     match get_account(&acc_pubkey) {
         Ok(account) => {
             print_struct(&account);
-            if !account.data.is_empty() && !account.executable {
+            if account.executable() {
+                read_program_idl(&acc_pubkey);
+            } else {
                 read_account_data(&account);
             }
         }
