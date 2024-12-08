@@ -3612,7 +3612,7 @@ dependencies = [
 
 [[package]]
 name = "solana-explorer-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anchor-lang",
  "anchor-lang-idl",
