@@ -30,13 +30,6 @@ fn read_account_data(account: &Account) {
         // Token Program
         "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
             print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
-            // if account.data.starts_with(&[1, 0, 0, 0]) {
-            //     // SPL Mint
-            //     print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
-            // } else {
-            //     // SPL Token account
-            //     print_struct(spl_token::state::Account::unpack(&account.data).unwrap());
-            // }
         }
         // Magic Eden Candy Machine
         "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {
@@ -44,6 +37,15 @@ fn read_account_data(account: &Account) {
         }
         _ => todo!(),
     }
+}
+
+fn get_token_metadata(
+    pubkey: &Pubkey,
+) -> mpl_token_metadata::accounts::Metadata
+{
+    let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
+    let metadata_account = get_account(&metadata_pda).unwrap();
+    mpl_token_metadata::accounts::Metadata::safe_deserialize(metadata_account.data()).unwrap()
 }
 
 fn read_program_idl(pubkey: &Pubkey) {
@@ -56,7 +58,8 @@ fn read_program_idl(pubkey: &Pubkey) {
     let mut decoder = ZlibDecoder::new(&idl_acc.data[44..44 + compressed_len]);
     let mut s = Vec::new();
     decoder.read_to_end(&mut s).unwrap();
-    println!("{}",
+    println!(
+        "{}",
         serde_json::to_string_pretty(&serde_json::from_slice::<serde_json::Value>(&s[..]).unwrap())
             .unwrap(),
     );
@@ -80,6 +83,7 @@ pub fn read_account(address: &str) {
                 read_program_idl(&acc_pubkey);
             } else {
                 read_account_data(&account);
+                print_struct(get_token_metadata(&acc_pubkey));
             }
         }
         Err(err) => {
