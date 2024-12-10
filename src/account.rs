@@ -10,7 +10,7 @@ use flate2::read::ZlibDecoder;
 use serde_json::json;
 use solana_client::{
     client_error::ClientError as RpcClientError,
-    rpc_request::{self},
+    rpc_request::{self, RpcError},
 };
 use solana_sdk::{
     account::{Account, ReadableAccount},
@@ -39,10 +39,7 @@ fn read_account_data(account: &Account) {
     }
 }
 
-fn get_token_metadata(
-    pubkey: &Pubkey,
-) -> mpl_token_metadata::accounts::Metadata
-{
+fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata {
     let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
     let metadata_account = get_account(&metadata_pda).unwrap();
     mpl_token_metadata::accounts::Metadata::safe_deserialize(metadata_account.data()).unwrap()
@@ -108,9 +105,23 @@ fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
 
 fn get_das_asset(pubkey: &Pubkey) -> Result<das::Asset, RpcClientError> {
     let rpc_con = rpc::init_connection();
-    // TODO: handle RpcError RpcResponseError message: "Method not found"
-    rpc_con.send::<das::Asset>(
+    let res = rpc_con.send::<das::Asset>(
         rpc_request::RpcRequest::Custom { method: "getAsset" },
         json!([pubkey.to_string()]),
-    )
+    );
+    match res {
+        Err(err) => {
+            let err_kind = err.kind();
+            match err_kind {
+                solana_client::client_error::ClientErrorKind::RpcError(
+                    RpcError::RpcResponseError { code: -32601, .. },
+                ) => {
+                    println!("RPC does not support DAS API");
+                    exit(1);
+                }
+                _ => Err(err),
+            }
+        }
+        _ => res,
+    }
 }
