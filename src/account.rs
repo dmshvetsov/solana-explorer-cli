@@ -3,6 +3,7 @@ use crate::{
     metaplex::das,
     output::{print_error, print_struct, print_warning},
     rpc,
+    token::Token,
 };
 use anchor_lang::idl::IdlAccount;
 use anchor_lang::AnchorDeserialize;
@@ -19,28 +20,6 @@ use solana_sdk::{
 };
 use std::io::prelude::*;
 use std::{process::exit, str::FromStr};
-
-fn read_account_data(acc_pubkey: &Pubkey, account: &Account) {
-    if account.data.is_empty() {
-        print_warning("data: empty");
-        return;
-    }
-
-    match account.owner.to_string().as_str() {
-        // Token Program
-        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
-            print!("account data: ");
-            print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
-            print_struct(get_token_metadata(acc_pubkey));
-        }
-        // Magic Eden Candy Machine
-        "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {
-            print!("account data: ");
-            print_struct(cm::CandyMachine::deserialize(&mut &account.data[8..]).unwrap());
-        }
-        _ => todo!(),
-    }
-}
 
 fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata {
     let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
@@ -72,6 +51,7 @@ fn read_program_idl(pubkey: &Pubkey) {
     );
 }
 
+/// Main entry point to account command/module
 pub fn read_account(address: &str) {
     let acc_pubkey = match Pubkey::from_str(address) {
         Ok(pubkey) => pubkey,
@@ -83,15 +63,8 @@ pub fn read_account(address: &str) {
         }
     };
 
-    match get_account(&acc_pubkey) {
-        Ok(account) => {
-            print_struct(&account);
-            if account.executable() {
-                read_program_idl(&acc_pubkey);
-            } else {
-                read_account_data(&acc_pubkey, &account);
-            }
-        }
+    let account = match get_account(&acc_pubkey) {
+        Ok(account) => account,
         Err(err) => {
             if err.kind.to_string() == format!("AccountNotFound: pubkey={}", acc_pubkey) {
                 // it can be a Metaplex Digital asset
@@ -103,6 +76,31 @@ pub fn read_account(address: &str) {
             }
             print_error(err);
             exit(1);
+        }
+    };
+
+    // program accounts
+    if account.executable() {
+        read_program_idl(&acc_pubkey);
+        exit(0);
+    }
+
+    // non-program accounts
+    match account.owner.to_string().as_str() {
+        // Token Program
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
+            let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
+            let metadata = get_token_metadata(&acc_pubkey);
+            let fungible = Token::new(account, unpacked_data, metadata);
+            print_struct(fungible);
+        }
+        // Magic Eden Candy Machine
+        "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {
+            print!("account data: ");
+            print_struct(cm::CandyMachine::deserialize(&mut &account.data[8..]).unwrap());
+        }
+        _ => {
+            todo!();
         }
     };
 }

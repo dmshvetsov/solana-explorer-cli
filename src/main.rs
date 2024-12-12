@@ -1,6 +1,7 @@
-mod rpc;
-mod output;
 mod account;
+mod output;
+mod rpc;
+mod token;
 mod transaction;
 mod metaplex {
     pub mod das;
