@@ -1,7 +1,7 @@
 use crate::{
     magiceden::cm,
     metaplex::das,
-    output::{print_error, print_struct, print_warning},
+    output::{output_raw_struct, print_error, print_struct, print_warning},
     rpc,
     token::Token,
 };
@@ -92,7 +92,7 @@ pub fn read_account(address: &str) {
             let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
             let metadata = get_token_metadata(&acc_pubkey);
             let fungible = Token::new(account, unpacked_data, metadata);
-            print_struct(fungible);
+            output_raw_struct(fungible);
         }
         // Magic Eden Candy Machine
         "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {

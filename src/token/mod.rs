@@ -1,3 +1,5 @@
+use crate::output::Output;
+
 #[derive(Debug)]
 pub struct Token {
     account: solana_sdk::account::Account,
@@ -18,3 +20,5 @@ impl Token {
         }
     }
 }
+
+impl Output for Token {}
