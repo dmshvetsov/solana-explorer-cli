@@ -20,7 +20,7 @@ use solana_sdk::{
 use std::io::prelude::*;
 use std::{process::exit, str::FromStr};
 
-fn read_account_data(account: &Account) {
+fn read_account_data(acc_pubkey: &Pubkey, account: &Account) {
     if account.data.is_empty() {
         print_warning("data: empty");
         return;
@@ -29,10 +29,13 @@ fn read_account_data(account: &Account) {
     match account.owner.to_string().as_str() {
         // Token Program
         "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
+            print!("account data: ");
             print_struct(spl_token::state::Mint::unpack(&account.data).unwrap());
+            print_struct(get_token_metadata(acc_pubkey));
         }
         // Magic Eden Candy Machine
         "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {
+            print!("account data: ");
             print_struct(cm::CandyMachine::deserialize(&mut &account.data[8..]).unwrap());
         }
         _ => todo!(),
@@ -79,8 +82,7 @@ pub fn read_account(address: &str) {
             if account.executable() {
                 read_program_idl(&acc_pubkey);
             } else {
-                read_account_data(&account);
-                print_struct(get_token_metadata(&acc_pubkey));
+                read_account_data(&acc_pubkey, &account);
             }
         }
         Err(err) => {
