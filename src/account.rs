@@ -49,8 +49,15 @@ fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata
 }
 
 fn read_program_idl(pubkey: &Pubkey) {
+    // TODO: handle inconsistency here we print JSON every time despite command format param/flag
     let idl_addr = IdlAccount::address(pubkey);
-    let idl_acc = get_account(&idl_addr).unwrap();
+    let idl_acc = match get_account(&idl_addr) {
+        Ok(acc) => acc,
+        Err(_) => {
+            print_warning("read of non Anchor programs is not supported yet");
+            exit(0);
+        }
+    };
     let discrimintaor_size = 8;
     let idl: IdlAccount =
         AnchorDeserialize::deserialize(&mut &idl_acc.data()[discrimintaor_size..]).unwrap();
