@@ -9,6 +9,7 @@ mod metaplex {
 mod magiceden;
 
 use account::read_account;
+use output::OutputFormat;
 use transaction::read_tx;
 use clap::{Args, Parser, Subcommand};
 
@@ -33,6 +34,8 @@ enum Resource {
 struct AccountCommand {
     /// account address
     address: String,
+    #[arg(short, long)]
+    format: Option<OutputFormat>,
 }
 
 #[derive(Args, Debug)]
@@ -45,7 +48,7 @@ fn main() {
 
     match &cli.command {
         Resource::Account(args) => {
-            read_account(&args.address);
+            read_account(&args.address, args.format.clone().unwrap_or(OutputFormat::AsStruct));
         }
         Resource::Transaction(args) => {
             read_tx(&args.signature);

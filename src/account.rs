@@ -1,7 +1,9 @@
 use crate::{
     magiceden::cm,
     metaplex::das,
-    output::{output_raw_struct, print_error, print_struct, print_warning},
+    output::{
+        output_json, output_raw_struct, print_error, print_struct, print_warning, OutputFormat,
+    },
     rpc,
     token::Token,
 };
@@ -52,7 +54,7 @@ fn read_program_idl(pubkey: &Pubkey) {
 }
 
 /// Main entry point to account command/module
-pub fn read_account(address: &str) {
+pub fn read_account(address: &str, output_format: OutputFormat) {
     let acc_pubkey = match Pubkey::from_str(address) {
         Ok(pubkey) => pubkey,
         Err(_) => {
@@ -91,8 +93,11 @@ pub fn read_account(address: &str) {
         "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
             let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
             let metadata = get_token_metadata(&acc_pubkey);
-            let fungible = Token::new(account, unpacked_data, metadata);
-            output_raw_struct(fungible);
+            let token = Token::new(account, unpacked_data, metadata);
+            match output_format {
+                OutputFormat::AsStruct => output_raw_struct(token),
+                OutputFormat::AsJson => output_json(token),
+            }
         }
         // Magic Eden Candy Machine
         "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {
