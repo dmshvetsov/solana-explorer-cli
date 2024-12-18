@@ -104,13 +104,14 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         Account {
             owner: magiceden::cm::CMZ_ID,
             ..
-        } => {
-            print!("account data: ");
-            // TODO: add support for output formats
-            print_struct(cm::CandyMachine::unpack(&account.data).unwrap());
-        }
-        // System Program 11111111111111111111111111111111
-        // TODO: check for empty data in the pattern to make sure it is a on-curve (key pair "wallet") account
+        } => match output_format {
+            OutputFormat::AsStruct => {
+                print_struct(cm::CandyMachine::unpack(&account.data).unwrap())
+            }
+            OutputFormat::AsJson => todo!(),
+        },
+        // System Program 11111111111111111111111111111111, on-curve, non-executable account
+        // (a key-pair "wallet" with balance)
         Account {
             owner: solana_sdk::system_program::ID,
             executable: false,

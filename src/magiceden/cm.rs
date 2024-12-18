@@ -45,7 +45,8 @@ impl CandyMachine {
         // and 318 padding, not used in the deserialization
   
     pub fn unpack(data: &[u8]) -> Result<CandyMachine, std::io::Error> {
+        let descriminato_size: usize = 8;
         let unknown_size_adjustment: usize = 3;
-        CandyMachine::try_from_slice(&data[8..CandyMachine::SIZE + unknown_size_adjustment])
+        CandyMachine::try_from_slice(&data[descriminato_size..CandyMachine::SIZE + unknown_size_adjustment])
     }
 }
