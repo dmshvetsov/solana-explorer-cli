@@ -1,8 +1,7 @@
 use crate::output::Output;
-use anchor_lang::prelude::Pubkey;
 use mpl_token_metadata::accounts::Metadata;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
-use solana_sdk::account::Account;
+use solana_sdk::{account::Account, pubkey::Pubkey};
 use spl_token::state::Mint;
 
 #[derive(Debug, Serialize)]

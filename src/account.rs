@@ -1,5 +1,5 @@
 use crate::{
-    magiceden::cm,
+    magiceden::{self, cm},
     metaplex::das,
     output::{
         output_json, output_raw_struct, print_error, print_struct, print_warning, OutputFormat,
@@ -7,9 +7,6 @@ use crate::{
     rpc,
     token::Token,
 };
-use anchor_lang::idl::IdlAccount;
-use anchor_lang::AnchorDeserialize;
-use flate2::read::ZlibDecoder;
 use serde_json::json;
 use solana_client::{
     client_error::ClientError as RpcClientError,
@@ -20,8 +17,8 @@ use solana_sdk::{
     program_pack::Pack,
     pubkey::Pubkey,
 };
-use std::io::prelude::*;
 use std::{process::exit, str::FromStr};
+
 
 fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata {
     let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
@@ -29,29 +26,29 @@ fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata
     mpl_token_metadata::accounts::Metadata::safe_deserialize(metadata_account.data()).unwrap()
 }
 
-fn read_program_idl(pubkey: &Pubkey) {
-    // TODO: handle inconsistency here we print JSON every time despite command format param/flag
-    let idl_addr = IdlAccount::address(pubkey);
-    let idl_acc = match get_account(&idl_addr) {
-        Ok(acc) => acc,
-        Err(_) => {
-            print_warning("read of non Anchor programs is not supported yet");
-            exit(0);
-        }
-    };
-    let discrimintaor_size = 8;
-    let idl: IdlAccount =
-        AnchorDeserialize::deserialize(&mut &idl_acc.data()[discrimintaor_size..]).unwrap();
-    let compressed_len: usize = idl.data_len.try_into().unwrap();
-    let mut decoder = ZlibDecoder::new(&idl_acc.data[44..44 + compressed_len]);
-    let mut s = Vec::new();
-    decoder.read_to_end(&mut s).unwrap();
-    println!(
-        "{}",
-        serde_json::to_string_pretty(&serde_json::from_slice::<serde_json::Value>(&s[..]).unwrap())
-            .unwrap(),
-    );
-}
+// fn read_program_idl(pubkey: &Pubkey) {
+//     // TODO: handle inconsistency here we print JSON every time despite command format param/flag
+//     let idl_addr = IdlAccount::address(pubkey);
+//     let idl_acc = match get_account(&idl_addr) {
+//         Ok(acc) => acc,
+//         Err(_) => {
+//             print_warning("read of non Anchor programs is not supported yet");
+//             exit(0);
+//         }
+//     };
+//     let discrimintaor_size = 8;
+//     let idl: IdlAccount =
+//         AnchorDeserialize::deserialize(&mut &idl_acc.data()[discrimintaor_size..]).unwrap();
+//     let compressed_len: usize = idl.data_len.try_into().unwrap();
+//     let mut decoder = ZlibDecoder::new(&idl_acc.data[44..44 + compressed_len]);
+//     let mut s = Vec::new();
+//     decoder.read_to_end(&mut s).unwrap();
+//     println!(
+//         "{}",
+//         serde_json::to_string_pretty(&serde_json::from_slice::<serde_json::Value>(&s[..]).unwrap())
+//             .unwrap(),
+//     );
+// }
 
 /// Main entry point to account command/module
 pub fn read_account(address: &str, output_format: OutputFormat) {
@@ -83,8 +80,9 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
 
     // program accounts
     if account.executable() {
-        read_program_idl(&acc_pubkey);
-        exit(0);
+        todo!();
+        // read_program_idl(&acc_pubkey);
+        // exit(0);
     }
 
     // non-program accounts

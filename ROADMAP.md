@@ -20,7 +20,7 @@
   -  FT
     - [x] on-chain metadata
 - programs
-  - [ ] better IDL view
+  - [ ] IDL view
 - transactions
   - [ ] better view of a mint
   - [ ] better view of a transfer
