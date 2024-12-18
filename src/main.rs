@@ -1,4 +1,5 @@
 mod account;
+mod balance;
 mod output;
 mod rpc;
 mod token;

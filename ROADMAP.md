@@ -1,8 +1,10 @@
 ## to do
 
 - wallets
-  - [ ] list of tokens
-  - [ ] token balance account
+  - [x] SOL balance
+  - [ ] list of tokens and balance
+  - [ ] display owned domains
+  - [ ] SOL stake balance
 - better view of token account
   - NFT
     - [x] on-chain metadata

@@ -1,4 +1,5 @@
 use crate::{
+    balance::Balance,
     magiceden::{self, cm},
     metaplex::das,
     output::{
@@ -18,7 +19,6 @@ use solana_sdk::{
     pubkey::Pubkey,
 };
 use std::{process::exit, str::FromStr};
-
 
 fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata {
     let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
@@ -86,9 +86,12 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
     }
 
     // non-program accounts
-    match account.owner.to_string().as_str() {
-        // Token Program
-        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" => {
+    match account {
+        // Token Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+        Account {
+            owner: spl_token::ID,
+            ..
+        } => {
             let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
             let metadata = get_token_metadata(&acc_pubkey);
             let token = Token::new(account, unpacked_data, metadata);
@@ -98,12 +101,29 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             }
         }
         // Magic Eden Candy Machine
-        "CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb" => {
+        Account {
+            owner: magiceden::cm::CMZ_ID,
+            ..
+        } => {
             print!("account data: ");
-            print_struct(cm::CandyMachine::deserialize(&mut &account.data[8..]).unwrap());
+            // TODO: add support for output formats
+            print_struct(cm::CandyMachine::unpack(&account.data).unwrap());
+        }
+        // System Program 11111111111111111111111111111111
+        // TODO: check for empty data in the pattern to make sure it is a on-curve (key pair "wallet") account
+        Account {
+            owner: solana_sdk::system_program::ID,
+            executable: false,
+            ..
+        } => {
+            let balance = Balance::from(account);
+            match output_format {
+                OutputFormat::AsStruct => output_raw_struct(balance),
+                OutputFormat::AsJson => output_json(balance),
+            }
         }
         _ => {
-            todo!();
+            todo!("account address {} with data size {} owned by {} program, not supported yet in solana explorer CLI", acc_pubkey, account.data.len(), account.owner.to_string());
         }
     };
 }
