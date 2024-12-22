@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{process, str::FromStr};
 
 use crate::{
     output::{print_error, print_struct, print_warning},
@@ -13,13 +13,16 @@ pub fn read_tx(sig_hash: &str) {
         Ok(sig) => sig,
         Err(_) => {
             print_warning(format!("signature {:?} is not a valid", sig_hash).as_str());
-            return;
+            process::exit(1);
         }
     };
 
     match get_tx(&sig) {
         Ok(tx) => print_struct(tx),
-        Err(err) => print_error(err),
+        Err(err) => {
+            print_error(err);
+            process::exit(1);
+        }
     }
 }
 
