@@ -1,4 +1,4 @@
-set -e 
+set -e
 
 SE=./target/debug/se 
 

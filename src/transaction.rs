@@ -30,7 +30,6 @@ fn get_tx(
     sig: &Signature,
 ) -> Result<EncodedConfirmedTransactionWithStatusMeta, solana_client::client_error::ClientError> {
     let rpc_con = rpc::init_connection();
-    // This method uses the Finalized commitment level
     let conf = RpcTransactionConfig {
         encoding: Some(UiTransactionEncoding::JsonParsed),
         commitment: Some(CommitmentConfig::confirmed()),
