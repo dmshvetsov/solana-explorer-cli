@@ -1,0 +1,3 @@
+se -e 
+
+cargo build
