@@ -26,9 +26,9 @@ struct Cli {
 #[derive(Subcommand)]
 enum Resource {
     Account(AccountCommand),
-    // Ac(AccountCommand),
+    Ac(AccountCommand),
     Transaction(TransactionCommand),
-    // Tx(TransactionCommand)
+    Tx(TransactionCommand)
 }
 
 #[derive(Args, Debug)]
@@ -48,10 +48,10 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Resource::Account(args) => {
+        Resource::Account(args) | Resource::Ac(args) => {
             read_account(&args.address, args.format.clone().unwrap_or(OutputFormat::AsStruct));
         }
-        Resource::Transaction(args) => {
+        Resource::Transaction(args) | Resource::Tx(args) => {
             read_tx(&args.signature);
         }
     }
