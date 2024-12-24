@@ -4,9 +4,7 @@ mod output;
 mod rpc;
 mod token;
 mod transaction;
-mod metaplex {
-    pub mod das;
-}
+mod metaplex;
 mod magiceden;
 
 use account::read_account;

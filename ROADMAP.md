@@ -15,7 +15,7 @@
     - [ ] marketplaces activity list/unlist/sell/previous owners
     - must work and show specific token standard info
       - [ ] pNFT
-      - [ ] MPL Core
+      - [x] MPL Core
       - [ ] MPL legacy
       - [ ] cNFT
   - [ ] SFT

@@ -1,7 +1,7 @@
 use crate::{
     balance::Balance,
     magiceden::{self, cm},
-    metaplex::das,
+    metaplex::das as mpl_das,
     output::{
         output_json, output_raw_struct, print_error, print_struct, print_warning, OutputFormat,
     },
@@ -100,6 +100,34 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                 OutputFormat::AsJson => output_json(token),
             }
         }
+        // Metaplex Core
+        Account {
+            owner: mpl_core::ID,
+            ..
+        } => {
+            // check first byte that represents mpl_core Key enum to determint type of account
+            match account.data[0] {
+                5 => {
+                    match mpl_core::accounts::BaseCollectionV1::from_bytes(&account.data) {
+                        Ok(unpacked_data) => print_struct(unpacked_data),
+                        Err(err) => {
+                            print_error(err);
+                            exit(1);
+                        }
+                    };
+                }
+                1 => {
+                    match mpl_core::accounts::BaseAssetV1::from_bytes(&account.data) {
+                        Ok(unpacked_data) => print_struct(unpacked_data),
+                        Err(err) => {
+                            print_error(err);
+                            exit(1);
+                        }
+                    };
+                }
+                _ => todo!(),
+            }
+        }
         // Magic Eden Candy Machine
         Account {
             owner: magiceden::cm::CMZ_ID,
@@ -134,9 +162,9 @@ fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
     rpc_con.get_account(pubkey)
 }
 
-fn get_das_asset(pubkey: &Pubkey) -> Result<das::Asset, RpcClientError> {
+fn get_das_asset(pubkey: &Pubkey) -> Result<mpl_das::Asset, RpcClientError> {
     let rpc_con = rpc::init_connection();
-    let res = rpc_con.send::<das::Asset>(
+    let res = rpc_con.send::<mpl_das::Asset>(
         rpc_request::RpcRequest::Custom { method: "getAsset" },
         json!([pubkey.to_string()]),
     );

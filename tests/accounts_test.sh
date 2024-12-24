@@ -5,6 +5,9 @@ SE=./target/debug/se
 echo "\n\npNFT"
 $SE account 5soeS5y4jrsyaXSYpnxjrUT8qsJ3VVNGRtT2jK399gx7
 
+echo "\n\np MPL Core NFT"
+$SE account HGFDAByQskKo9Az9yAtgg6qP8TnwMayZGKbyi3vkanzT
+
 echo "\n\nBERN token account"
 $SE account 4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 
