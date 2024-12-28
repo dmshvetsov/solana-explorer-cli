@@ -1,5 +1,6 @@
 use crate::{
     balance::Balance,
+    balance::SplBalance,
     magiceden::{self, cm},
     metaplex::das as mpl_das,
     output::{
@@ -9,12 +10,16 @@ use crate::{
     token::Token,
 };
 use serde_json::json;
+use solana_account_decoder_client_types::{UiAccountData, UiAccountEncoding};
 use solana_client::{
     client_error::ClientError as RpcClientError,
+    rpc_config::{self, RpcTokenAccountsFilter},
     rpc_request::{self, RpcError},
+    rpc_response::{self, RpcKeyedAccount},
 };
 use solana_sdk::{
     account::{Account, ReadableAccount},
+    commitment_config,
     program_pack::Pack,
     pubkey::Pubkey,
 };
@@ -150,7 +155,41 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             executable: false,
             ..
         } => {
-            let balance = Balance::from(account);
+            let mut balance = Balance::from(account);
+
+            // TODO: add flag to hide/show empty balances
+            let mint_balances: Vec<(Pubkey, u64)>  = get_spl_tokens_by_owner(&acc_pubkey).unwrap().into_iter().map(|spl_token_acc| {
+                let spl_token = spl_token::state::Account::unpack(
+                    &spl_token_acc.account.data.decode().unwrap()
+                ).unwrap();
+                (spl_token.mint, spl_token.amount)
+            }).filter(|(_, amount)| *amount != 0).collect();
+
+            let spl_metadata_acc_addresses: Vec<Pubkey> = mint_balances.iter().map(|(mint_addr, _)| {
+                let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(mint_addr);
+                metadata_pda
+            }).collect();
+
+            let spl_token_balances: Vec<SplBalance> =
+                get_multiple_accounts(&spl_metadata_acc_addresses)
+                    .unwrap()
+                    .into_iter()
+                    .filter(|acc| acc.is_some())
+                    .enumerate()
+                    .map(|(idx, acc)| {
+                        let metadata =
+                            mpl_token_metadata::accounts::Metadata::safe_deserialize(acc.unwrap().data())
+                                .unwrap();
+                        let (_, amount) = mint_balances[idx];
+                        SplBalance {
+                            amount,
+                            metadata,
+                        }
+                    })
+                    .collect();
+
+            // TODO: sort by balance
+            balance.set_spl(spl_token_balances);
             match output_format {
                 OutputFormat::AsStruct => output_raw_struct(balance),
                 OutputFormat::AsJson => output_json(balance),
@@ -165,6 +204,11 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
 fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
     let rpc_con = rpc::init_connection();
     rpc_con.get_account(pubkey)
+}
+
+fn get_multiple_accounts(pubkeys: &[Pubkey]) -> Result<Vec<Option<Account>>, RpcClientError> {
+    let rpc_con = rpc::init_connection();
+    rpc_con.get_multiple_accounts(pubkeys)
 }
 
 fn get_das_asset(pubkey: &Pubkey) -> Result<mpl_das::Asset, RpcClientError> {
@@ -188,4 +232,22 @@ fn get_das_asset(pubkey: &Pubkey) -> Result<mpl_das::Asset, RpcClientError> {
         }
         _ => res,
     }
+}
+
+fn get_spl_tokens_by_owner(
+    owner: &Pubkey,
+) -> Result<Vec<rpc_response::RpcKeyedAccount>, RpcClientError> {
+    let rpc_con = rpc::init_connection();
+    let filter = rpc_config::RpcTokenAccountsFilter::ProgramId(spl_token::ID.to_string());
+    let config = rpc_config::RpcAccountInfoConfig {
+        encoding: Some(UiAccountEncoding::Base64Zstd),
+        commitment: Some(commitment_config::CommitmentConfig::confirmed()),
+        data_slice: None,
+        min_context_slot: None,
+    };
+    let res = rpc_con.send::<rpc_response::Response<Vec<rpc_response::RpcKeyedAccount>>>(
+        rpc_request::RpcRequest::GetTokenAccountsByOwner,
+        json!([owner.to_string(), filter, config]),
+    )?;
+    Ok(res.value)
 }

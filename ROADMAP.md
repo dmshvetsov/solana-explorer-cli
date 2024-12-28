@@ -2,7 +2,7 @@
 
 - wallets
   - [x] SOL balance
-  - [ ] list of tokens and balance
+  - [x] list of tokens and balance
   - [ ] display owned domains
   - [ ] SOL stake balance
 - better view of token account
@@ -26,6 +26,8 @@
 - transactions
   - [ ] better view of a mint
   - [ ] better view of a transfer
+- UX
+  - more concise output for different accounts with ability to print all the data
 
 ## inspiration
 
