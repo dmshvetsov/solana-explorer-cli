@@ -127,6 +127,11 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                 }
                 _ => todo!(),
             }
+            let das_asset = get_das_asset(&acc_pubkey);
+            // TODO: add formats
+            if das_asset.is_ok() {
+                print_struct(das_asset);
+            }
         }
         // Magic Eden Candy Machine
         Account {
