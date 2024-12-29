@@ -16,7 +16,7 @@
     - must work and show specific token standard info
       - [ ] pNFT
       - [x] MPL Core
-      - [ ] MPL legacy
+      - [x] MPL legacy
       - [ ] cNFT
   - [ ] SFT
   -  FT

@@ -1,13 +1,12 @@
 use crate::{
-    balance::Balance,
-    balance::SplBalance,
+    balance::{Balance, SplBalance},
     magiceden::{self, cm},
     metaplex::das as mpl_das,
     output::{
         output_json, output_raw_struct, print_error, print_struct, print_warning, OutputFormat,
     },
     rpc,
-    token::Token,
+    token::{TokenAccount, TokenMint},
 };
 use serde_json::json;
 use solana_account_decoder_client_types::UiAccountEncoding;
@@ -18,7 +17,7 @@ use solana_client::{
     rpc_response::{self},
 };
 use solana_sdk::{
-    account::{Account, ReadableAccount},
+    account::{Account as SolanaAccount, ReadableAccount},
     commitment_config,
     program_pack::Pack,
     pubkey::Pubkey,
@@ -93,20 +92,34 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
     // non-program accounts
     match account {
         // Token Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
-        Account {
+        SolanaAccount {
             owner: spl_token::ID,
             ..
         } => {
-            let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
-            let metadata = get_token_metadata(&acc_pubkey);
-            let token = Token::new(account, unpacked_data, metadata);
-            match output_format {
-                OutputFormat::AsStruct => output_raw_struct(token),
-                OutputFormat::AsJson => output_json(token),
+            match &account.data[0..4] {
+                &[1, 0, 0, 0] => {
+                    // mint account
+                    let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
+                    let metadata = get_token_metadata(&acc_pubkey);
+                    let token_mint = TokenMint::new(account, unpacked_data, metadata);
+                    match output_format {
+                        OutputFormat::AsStruct => output_raw_struct(token_mint),
+                        OutputFormat::AsJson => output_json(token_mint),
+                    }
+                }
+                _ => {
+                    // token account
+                    let unpacked_data = spl_token::state::Account::unpack(&account.data).unwrap();
+                    let token_account = TokenAccount::new(account, unpacked_data);
+                    match output_format {
+                        OutputFormat::AsStruct => output_raw_struct(token_account),
+                        OutputFormat::AsJson => output_json(token_account),
+                    }
+                }
             }
         }
         // Metaplex Core
-        Account {
+        SolanaAccount {
             owner: mpl_core::ID,
             ..
         } => {
@@ -133,13 +146,13 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                 _ => todo!(),
             }
             let das_asset = get_das_asset(&acc_pubkey);
-            // TODO: add formats 
+            // TODO: add formats
             if das_asset.is_ok() {
                 print_struct(das_asset);
             }
         }
         // Magic Eden Candy Machine
-        Account {
+        SolanaAccount {
             owner: magiceden::cm::CMZ_ID,
             ..
         } => match output_format {
@@ -150,7 +163,7 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         },
         // System Program 11111111111111111111111111111111, on-curve, non-executable account
         // (a key-pair "wallet" with balance)
-        Account {
+        SolanaAccount {
             owner: solana_sdk::system_program::ID,
             executable: false,
             ..
@@ -209,12 +222,12 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
     };
 }
 
-fn get_account(pubkey: &Pubkey) -> Result<Account, RpcClientError> {
+fn get_account(pubkey: &Pubkey) -> Result<SolanaAccount, RpcClientError> {
     let rpc_con = rpc::init_connection();
     rpc_con.get_account(pubkey)
 }
 
-fn get_multiple_accounts(pubkeys: &[Pubkey]) -> Result<Vec<Option<Account>>, RpcClientError> {
+fn get_multiple_accounts(pubkeys: &[Pubkey]) -> Result<Vec<Option<SolanaAccount>>, RpcClientError> {
     let rpc_con = rpc::init_connection();
     rpc_con.get_multiple_accounts(pubkeys)
 }

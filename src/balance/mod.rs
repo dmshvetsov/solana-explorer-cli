@@ -1,7 +1,7 @@
 use solana_sdk::{account::ReadableAccount, native_token::lamports_to_sol};
 use crate::output::Output;
 use serde::Serialize;
-use solana_sdk::account::Account;
+use solana_sdk::account::Account as SolanaAccount;
 use mpl_token_metadata::accounts::Metadata;
 
 #[derive(Debug, Serialize)]
@@ -24,8 +24,8 @@ impl Balance {
 }
 
 
-impl From<Account> for Balance {
-    fn from(acc: Account) -> Balance {
+impl From<SolanaAccount> for Balance {
+    fn from(acc: SolanaAccount) -> Balance {
         Balance {
             sol: lamports_to_sol(acc.lamports()),
             spl: vec![]
