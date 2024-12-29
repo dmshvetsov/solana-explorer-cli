@@ -5,7 +5,7 @@ use solana_sdk::{account::Account as SolanaAccount, pubkey::Pubkey};
 use spl_token::state::{Account as SplAccount, Mint};
 
 ///
-/// Wallet/Owner Account -> Token Account -> Mint Account
+/// Wallet/Owner Account -> Token Account -> Mint Account -> Metadata (PDA) Account
 ///
 /// Wallet/Owner Account - owner, usually a someones wallet, System program owns and operates owner accounts
 /// TokenAccount, see TokenAccount struct docs
