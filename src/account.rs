@@ -10,12 +10,12 @@ use crate::{
     token::Token,
 };
 use serde_json::json;
-use solana_account_decoder_client_types::{UiAccountData, UiAccountEncoding};
+use solana_account_decoder_client_types::UiAccountEncoding;
 use solana_client::{
     client_error::ClientError as RpcClientError,
-    rpc_config::{self, RpcTokenAccountsFilter},
+    rpc_config::{self},
     rpc_request::{self, RpcError},
-    rpc_response::{self, RpcKeyedAccount},
+    rpc_response::{self},
 };
 use solana_sdk::{
     account::{Account, ReadableAccount},
@@ -133,7 +133,7 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                 _ => todo!(),
             }
             let das_asset = get_das_asset(&acc_pubkey);
-            // TODO: add formats
+            // TODO: add formats 
             if das_asset.is_ok() {
                 print_struct(das_asset);
             }
@@ -158,17 +158,27 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             let mut balance = Balance::from(account);
 
             // TODO: add flag to hide/show empty balances
-            let mint_balances: Vec<(Pubkey, u64)>  = get_spl_tokens_by_owner(&acc_pubkey).unwrap().into_iter().map(|spl_token_acc| {
-                let spl_token = spl_token::state::Account::unpack(
-                    &spl_token_acc.account.data.decode().unwrap()
-                ).unwrap();
-                (spl_token.mint, spl_token.amount)
-            }).filter(|(_, amount)| *amount != 0).collect();
+            let mint_balances: Vec<(Pubkey, u64)> = get_spl_tokens_by_owner(&acc_pubkey)
+                .unwrap()
+                .into_iter()
+                .map(|spl_token_acc| {
+                    let spl_token = spl_token::state::Account::unpack(
+                        &spl_token_acc.account.data.decode().unwrap(),
+                    )
+                    .unwrap();
+                    (spl_token.mint, spl_token.amount)
+                })
+                .filter(|(_, amount)| *amount != 0)
+                .collect();
 
-            let spl_metadata_acc_addresses: Vec<Pubkey> = mint_balances.iter().map(|(mint_addr, _)| {
-                let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(mint_addr);
-                metadata_pda
-            }).collect();
+            let spl_metadata_acc_addresses: Vec<Pubkey> = mint_balances
+                .iter()
+                .map(|(mint_addr, _)| {
+                    let (metadata_pda, _) =
+                        mpl_token_metadata::accounts::Metadata::find_pda(mint_addr);
+                    metadata_pda
+                })
+                .collect();
 
             let spl_token_balances: Vec<SplBalance> =
                 get_multiple_accounts(&spl_metadata_acc_addresses)
@@ -177,14 +187,12 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                     .filter(|acc| acc.is_some())
                     .enumerate()
                     .map(|(idx, acc)| {
-                        let metadata =
-                            mpl_token_metadata::accounts::Metadata::safe_deserialize(acc.unwrap().data())
-                                .unwrap();
+                        let metadata = mpl_token_metadata::accounts::Metadata::safe_deserialize(
+                            acc.unwrap().data(),
+                        )
+                        .unwrap();
                         let (_, amount) = mint_balances[idx];
-                        SplBalance {
-                            amount,
-                            metadata,
-                        }
+                        SplBalance { amount, metadata }
                     })
                     .collect();
 
