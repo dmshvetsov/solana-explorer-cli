@@ -230,6 +230,7 @@ fn get_account(pubkey: &Pubkey) -> Result<SolanaAccount, RpcClientError> {
 
 fn get_multiple_accounts(pubkeys: &[Pubkey]) -> Result<Vec<Option<SolanaAccount>>, RpcClientError> {
     let rpc_con = rpc::init_connection();
+    // TODO: handle 413 content too large errors
     rpc_con.get_multiple_accounts(pubkeys)
 }
 
