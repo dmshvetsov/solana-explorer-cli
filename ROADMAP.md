@@ -10,14 +10,12 @@
     - [x] on-chain metadata
     - [ ] off-chain metadata
     - [ ] token extension
-    - [ ] token address
-    - [ ] owner
     - [ ] marketplaces activity list/unlist/sell/previous owners
     - must work and show specific token standard info
-      - [ ] pNFT
+      - [?] pNFT
       - [x] MPL Core
       - [x] MPL legacy
-      - [ ] cNFT
+      - [x] cNFT
   - [ ] SFT
   -  FT
     - [x] on-chain metadata
