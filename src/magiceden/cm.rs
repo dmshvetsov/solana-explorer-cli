@@ -5,6 +5,7 @@ pub const CMZ_ID: Pubkey =
     solana_sdk::pubkey::Pubkey::from_str_const("CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb");
 
 #[derive(BorshDeserialize, Debug, Default)]
+#[allow(dead_code)]
 pub struct CandyMachine {
     pub authority: Pubkey,
     pub wallet_authority: Pubkey,

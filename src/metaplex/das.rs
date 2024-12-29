@@ -2,6 +2,7 @@ use serde::Deserialize;
 use std::fmt::Debug;
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Asset {
     pub content: Content,
     pub authorities: Vec<Authority>,
@@ -9,6 +10,7 @@ pub struct Asset {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Content {
     pub metadata: Metadata,
     pub edition_num: Option<u64>,
@@ -17,24 +19,28 @@ pub struct Content {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Authority {
     pub address: String,
     pub scopes: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Links {
     pub image: Option<String>,
     pub external_url: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct AssetFile {
     pub uri: String,
     pub mime: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Metadata {
     pub name: String,
     pub symbol: String,
@@ -44,12 +50,14 @@ pub struct Metadata {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Attribute {
     pub value: String,
     pub trait_type: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Compression {
     pub eligible: bool,
     pub compressed: bool,
