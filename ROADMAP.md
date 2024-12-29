@@ -28,6 +28,7 @@
   - [ ] better view of a transfer
 - UX
   - more concise output for different accounts with ability to print all the data
+  - `--explain` flag that printout explanation what each account (struct) does
 
 ## inspiration
 
