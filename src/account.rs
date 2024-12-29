@@ -97,8 +97,9 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             ..
         } => {
             match &account.data[0..4] {
-                &[1, 0, 0, 0] => {
-                    // mint account
+                &[1, 0, 0, 0] | &[0, 0, 0, 0] => {
+                    // mint account 
+                    // 1000 NFT, 0000 FT
                     let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
                     let metadata = get_token_metadata(&acc_pubkey);
                     let token_mint = TokenMint::new(account, unpacked_data, metadata);
