@@ -28,6 +28,10 @@
   - more concise output for different accounts with ability to print all the data
   - `--explain` flag that printout explanation what each account (struct) does
 
+## relevant info
+
+- most known programs https://github.com/helius-labs/xray/blob/900dd5a03c914cc435c958eccba94f2dc22f0372/src/lib/xray/config.ts
+
 ## inspiration
 
 - https://github.com/cavemanloverboy/sol
