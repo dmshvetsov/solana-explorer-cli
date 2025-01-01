@@ -20,6 +20,15 @@ $SE ac 4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 echo "\n\nCandy Machine"
 $SE account Aq9PkNTgWdmhA24xAcKYYZwLDo1CfEUk6EqrZ87RsuEJ
 
+echo "\n\nMagic Eden Core Open Edition"
+$SE account DQebYkR5JxtpCpvNJu1u3FEJDhat3kkVgk3bbBr6iAAW
+
+echo "\n\nMagic Eden Launchpad #1"
+$SE account D2Fbhy8pPi47w7gaDEYmSzskAAQFUqiHG53hUE71HpC2
+
+echo "\n\nMagic Eden Launchpad #2"
+$SE account F1obR8rmTi7a22TE3qRTYsJmeN5YCNgUcuPSwLK8Cooc
+
 echo "\n\ncNFT"
 $SE account 9HNN54hfD3GVy4WkUtXjJdxaTo9tjFzYmEXYN9eHnLZp
 

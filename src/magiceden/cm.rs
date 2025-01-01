@@ -1,3 +1,5 @@
+use std::io;
+
 use borsh::BorshDeserialize;
 use solana_sdk::pubkey::Pubkey;
 
@@ -27,8 +29,9 @@ pub struct CandyMachine {
 
 impl CandyMachine {
     pub const MAX_LAUNCH_STAGES: usize = 10;
-    pub const SIZE: usize = 8
-        + 32 // authority
+    pub const DESCIMINATOR_SIZE: usize = 8;
+    pub const PADDING: usize = 318;
+    pub const SIZE: usize = 32 // authority
         + 32 // wallet
         + 32 // config
         + 8 // items_redeemed_normal
@@ -43,11 +46,20 @@ impl CandyMachine {
         + 4 + CandyMachine::MAX_LAUNCH_STAGES
         + 33 // Optional mip1_ruleset
         + 2; // optional is_open_edition
-        // and 318 padding, not used in the deserialization
-  
+
     pub fn unpack(data: &[u8]) -> Result<CandyMachine, std::io::Error> {
-        let descriminato_size: usize = 8;
-        let unknown_size_adjustment: usize = 3;
-        CandyMachine::try_from_slice(&data[descriminato_size..CandyMachine::SIZE + unknown_size_adjustment])
+        let mut padding: usize = 0;
+        while padding < Self::PADDING {
+            let cm_data = &data[Self::DESCIMINATOR_SIZE..(Self::SIZE - padding)];
+            let res = CandyMachine::try_from_slice(cm_data);
+            if res.is_ok() {
+                return res;
+            }
+            padding += 1;
+        }
+        Result::Err(std::io::Error::new(
+            io::ErrorKind::InvalidData,
+            "can't unpack Candy Machine data",
+        ))
     }
 }
