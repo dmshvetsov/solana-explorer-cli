@@ -1,11 +1,11 @@
-use std::{process, str::FromStr};
+use std::{process::{self, exit}, str::FromStr};
 
 use crate::{
     output::{print_error, print_struct, print_warning},
     rpc,
 };
 use solana_client::rpc_config::RpcTransactionConfig;
-use solana_sdk::{commitment_config::CommitmentConfig, signature::Signature};
+use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey, signature::Signature};
 use solana_transaction_status::{EncodedConfirmedTransactionWithStatusMeta, UiTransactionEncoding};
 
 pub fn read_tx(sig_hash: &str) {
@@ -36,4 +36,21 @@ fn get_tx(
         max_supported_transaction_version: Some(0),
     };
     rpc_con.get_transaction_with_config(sig, conf)
+}
+
+pub fn list_account_txs(address: &str) {
+    let acc_pubkey = match Pubkey::from_str(address) {
+        Ok(pubkey) => pubkey,
+        Err(_) => {
+            print_warning(
+                format!("address {:?} is not a valid solana public key", address).as_str(),
+            );
+            exit(1);
+        }
+    };
+    let rpc_con = rpc::init_connection();
+    let txs = rpc_con.get_signatures_for_address(&acc_pubkey).unwrap();
+    for tx in txs {
+        read_tx(&tx.signature);
+    }
 }
