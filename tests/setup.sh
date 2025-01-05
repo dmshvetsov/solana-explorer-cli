@@ -1,3 +1,3 @@
-se -e 
+set -e
 
 cargo build
