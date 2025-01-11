@@ -7,7 +7,7 @@ mod rpc;
 mod token;
 mod transaction;
 
-use account::read_account;
+use account::reader::read_account;
 use clap::{Args, Parser, Subcommand};
 use output::OutputFormat;
 use transaction::{list_account_txs, read_tx};
