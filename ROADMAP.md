@@ -26,8 +26,16 @@
   - [ ] better view of a mint
   - [ ] better view of a transfer
 - UX
-  - more concise output for different accounts with ability to print all the data
-  - `--explain` flag that printout explanation what each account (struct) does
+  - [ ] more concise output for different accounts with ability to print all the data
+  - [ ] `--explain` flag that printout explanation what each account (struct) does
+  - [ ] output in pages, a page consist of a list of data instances (account, mint, token metadata, off-chain metadata, balanance, transactions etc)
+    - [ ] implement output format for all supported `account` reads
+      - [ ] all structs that goes to output must be local to the crate
+    - [ ] add pages struct
+      - [ ] build page(s) from (owner program, pubkey) tuple
+      - [ ] read data from sources iterating through the pages tuples
+      - [ ] output result
+      - [ ] remove duplication of read logic e.g. token_metadata duplication
 
 ## relevant info
 
