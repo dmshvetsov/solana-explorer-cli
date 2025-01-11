@@ -27,3 +27,4 @@ solana-client = "2.1.6"
 solana-sdk = "2.1.6"
 solana-transaction-status = "2.1.6"
 spl-token = "7.0.0"
+uom = { version = "0.36.0", features = ["usize"] }
