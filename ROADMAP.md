@@ -16,6 +16,7 @@
       - [x] MPL Core
       - [x] MPL legacy
       - [x] cNFT
+    - [x] read Metaplaex token metadata account directly
   - [ ] SFT
   -  FT
     - [x] on-chain metadata

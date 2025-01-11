@@ -98,7 +98,7 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         } => {
             match &account.data[0..4] {
                 &[1, 0, 0, 0] | &[0, 0, 0, 0] => {
-                    // mint account 
+                    // mint account
                     // 1000 NFT, 0000 FT
                     let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
                     let metadata = get_token_metadata(&acc_pubkey);
@@ -151,6 +151,16 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             if das_asset.is_ok() {
                 print_struct(das_asset);
             }
+        }
+        SolanaAccount {
+            owner: mpl_token_metadata::ID,
+            ..
+        } => {
+            let metadata_acc = get_account(&acc_pubkey).unwrap();
+            let metadata =
+                mpl_token_metadata::accounts::Metadata::safe_deserialize(&metadata_acc.data);
+            // TODO: add formats
+            print_struct(metadata);
         }
         // Magic Eden Candy Machine
         SolanaAccount {

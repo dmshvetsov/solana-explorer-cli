@@ -6,6 +6,7 @@ use solana_sdk::pubkey::Pubkey;
 pub const CMZ_ID: Pubkey =
     solana_sdk::pubkey::Pubkey::from_str_const("CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb");
 
+// source https://github.com/me-foundation/cmx/blob/main/programs/cmx/src/state.rs
 #[derive(BorshDeserialize, Debug, Default)]
 #[allow(dead_code)]
 pub struct CandyMachine {
