@@ -69,12 +69,18 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
     let account = match get_account(&acc_pubkey) {
         Ok(account) => account,
         Err(err) => {
+            // solana account not found
             if err.kind.to_string() == format!("AccountNotFound: pubkey={}", acc_pubkey) {
-                // it can be a Metaplex Digital asset
-                let asset = get_das_asset(&acc_pubkey);
-                if asset.is_ok() {
-                    print_struct(&asset);
-                    return;
+                // it can be a Metaplex Digital asset (DAS)
+                match get_das_asset(&acc_pubkey) {
+                    Ok(asset) => {
+                        print_struct(&asset);
+                        exit(0);
+                    }
+                    _ => {
+                        // not a DAS either
+                        // do nothing and throw original "not found" error, see below
+                    }
                 }
             }
             print_error(err);
@@ -146,10 +152,16 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                 }
                 _ => todo!(),
             }
-            let das_asset = get_das_asset(&acc_pubkey);
-            // TODO: add formats
-            if das_asset.is_ok() {
-                print_struct(das_asset);
+            match get_das_asset(&acc_pubkey) {
+                Ok(asset) => {
+                    // TODO: add formats
+                    print_struct(&asset);
+                    exit(0);
+                }
+                _ => {
+                    // not a DAS either
+                    // do nothing
+                }
             }
         }
         SolanaAccount {
