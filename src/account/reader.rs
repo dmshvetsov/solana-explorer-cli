@@ -5,6 +5,7 @@ use crate::{
     output::{
         output_json, output_raw_struct, print_error, print_struct, print_warning, OutputFormat,
     },
+    page::Page,
     rpc,
     token::{TokenAccount, TokenMint},
 };
@@ -23,6 +24,8 @@ use solana_sdk::{
     pubkey::Pubkey,
 };
 use std::{process::exit, str::FromStr};
+
+use super::Account;
 
 fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata {
     let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
@@ -89,6 +92,14 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         // exit(0);
     }
 
+    // read first account
+    // detemine owner and what data it holds
+    // create a page with all Outputs
+    // display the page, iterate over content and output
+
+    let mut page = Page::new(output_format);
+    page.add(Account::new(&acc_pubkey, &account));
+
     // non-program accounts
     match account {
         // Token Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
@@ -98,24 +109,24 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         } => {
             match &account.data[0..4] {
                 &[1, 0, 0, 0] | &[0, 0, 0, 0] => {
-                    // mint account
-                    // 1000 NFT, 0000 FT
+                    // mint account: 1000 NFT, 0000 FT
                     let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
                     let metadata = get_token_metadata(&acc_pubkey);
-                    let token_mint = TokenMint::new(account, unpacked_data, metadata);
-                    match output_format {
-                        OutputFormat::AsStruct => output_raw_struct(token_mint),
-                        OutputFormat::AsJson => output_json(token_mint),
-                    }
+                    // let token_mint = TokenMint::new(account, unpacked_data, metadata);
+                    // page.add(unpacked_data);
+                    // match output_format {
+                    //     OutputFormat::AsStruct => output_raw_struct(token_mint),
+                    //     OutputFormat::AsJson => output_json(token_mint),
+                    // }
                 }
                 _ => {
                     // token account
                     let unpacked_data = spl_token::state::Account::unpack(&account.data).unwrap();
                     let token_account = TokenAccount::new(account, unpacked_data);
-                    match output_format {
-                        OutputFormat::AsStruct => output_raw_struct(token_account),
-                        OutputFormat::AsJson => output_json(token_account),
-                    }
+                    // match output_format {
+                    //     OutputFormat::AsStruct => output_raw_struct(token_account),
+                    //     OutputFormat::AsJson => output_json(token_account),
+                    // }
                 }
             }
         }
@@ -166,12 +177,15 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         SolanaAccount {
             owner: magiceden::cm::CMZ_ID,
             ..
-        } => match output_format {
-            OutputFormat::AsStruct => {
-                print_struct(cm::CandyMachine::unpack(&account.data).unwrap())
-            }
-            OutputFormat::AsJson => todo!(),
-        },
+        } => {
+            let me_candy_machine = cm::CandyMachine::unpack(&account.data).unwrap();
+        }
+        // match output_format {
+        // OutputFormat::AsStruct => {
+        //     print_struct(cm::CandyMachine::unpack(&account.data).unwrap())
+        // }
+        // OutputFormat::AsJson => todo!(),
+        // },
         // System Program 11111111111111111111111111111111, on-curve, non-executable account
         // (a key-pair "wallet" with balance)
         SolanaAccount {
@@ -222,15 +236,17 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
 
             // TODO: sort by balance
             balance.set_spl(spl_token_balances);
-            match output_format {
-                OutputFormat::AsStruct => output_raw_struct(balance),
-                OutputFormat::AsJson => output_json(balance),
-            }
+            // match output_format {
+            //     OutputFormat::AsStruct => output_raw_struct(balance),
+            //     OutputFormat::AsJson => output_json(balance),
+            // }
         }
         _ => {
             todo!("account address {} with data size {} owned by {} program, not supported yet in solana explorer CLI", acc_pubkey, account.data.len(), account.owner.to_string());
         }
     };
+
+    page.display();
 }
 
 fn get_account(pubkey: &Pubkey) -> Result<SolanaAccount, RpcClientError> {

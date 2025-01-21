@@ -55,7 +55,15 @@ impl TokenMint {
     }
 }
 
-impl Output for TokenMint {}
+impl Output for TokenMint {
+    fn struct_name(&self) -> String {
+        String::from("TokenMint")
+    }
+
+    fn to_json(self: &Self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
+    }
+}
 
 /// Token Account - stores number of token owned another account (wallet e.g.), Token progra owns
 /// and operates token accounts
@@ -94,15 +102,17 @@ where
 }
 
 impl TokenAccount {
-    pub fn new(
-        account: SolanaAccount,
-        data: SplAccount,
-    ) -> Self {
-        TokenAccount {
-            account,
-            data,
-        }
+    pub fn new(account: SolanaAccount, data: SplAccount) -> Self {
+        TokenAccount { account, data }
     }
 }
 
-impl Output for TokenAccount {}
+impl Output for TokenAccount {
+    fn struct_name(&self) -> String {
+        String::from("TokenAccount")
+    }
+
+    fn to_json(self: &Self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
+    }
+}

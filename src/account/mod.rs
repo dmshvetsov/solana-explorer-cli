@@ -1,10 +1,12 @@
 pub mod reader;
 
+use serde::Serialize;
 use solana_sdk::account::Account as SolanaAccount;
 use solana_sdk::pubkey::Pubkey;
 use uom::si;
 use uom::si::information::byte;
-use serde::Serialize;
+
+use crate::output::Output;
 
 #[derive(Debug, Serialize)]
 pub struct Account {
@@ -30,7 +32,15 @@ impl Account {
     }
 }
 
-impl Output for Account {}
+impl Output for Account {
+    fn struct_name(&self) -> String {
+        String::from("Account")
+    }
+
+    fn to_json(self: &Self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
+    }
+}
 
 // impl From<SolanaAccount> for Account {
 //     fn from(account: SolanaAccount) -> Self {

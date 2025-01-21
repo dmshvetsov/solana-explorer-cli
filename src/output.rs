@@ -1,6 +1,6 @@
 use serde::Serialize;
-use std::fmt::Debug;
 use std::error::Error;
+use std::fmt::Debug;
 
 #[derive(Clone, Debug)]
 pub enum OutputFormat {
@@ -40,29 +40,39 @@ pub fn print_error<T: Error>(err: T) {
 }
 
 pub fn output_raw_struct<T: Debug + Output>(instance: T) {
-    println!("{}::{:#?}", instance.struct_name::<T>(), instance);
+    println!("se::{}::{:#?}", instance.struct_name(), instance);
 }
 
-pub fn output_json<T: Output + Serialize>(instance: T) {
-    println!("{} {}", instance.struct_name::<T>(), instance.to_json(),);
+pub fn output_json<T: Output>(instance: T) {
+    println!("se::{} {}", instance.struct_name(), instance.to_json());
 }
 
 /// methods required to output a struct from the CLI
 pub trait Output {
-    fn struct_name<T>(&self) -> String {
-        let type_name = std::any::type_name::<T>().split("::");
-        let size = type_name.clone().count();
-        let mut type_prefix = type_name.take(size - 1).collect::<Vec<&str>>().join("::");
-        if type_prefix.starts_with('&') {
-            type_prefix = type_prefix.strip_prefix('&').unwrap().to_string();
-        }
-        type_prefix
-    }
+    fn struct_name(self: &Self) -> String;
+    // fn struct_name<T>(&self) -> String {
+    //     let type_name = std::any::type_name::<T>().split("::");
+    //     let size = type_name.clone().count();
+    //     let mut type_prefix = type_name.take(size - 1).collect::<Vec<&str>>().join("::");
+    //     if type_prefix.starts_with('&') {
+    //         type_prefix = type_prefix.strip_prefix('&').unwrap().to_string();
+    //     }
+    //     type_prefix
+    // }
 
-    fn to_json(&self) -> String
-    where
-        Self: Serialize,
-    {
-        serde_json::to_string_pretty(self).unwrap()
-    }
+    fn to_json(self: &Self) -> String;
+    // fn to_json(self: &Self) -> String
+    // where
+    //     Self: Serialize,
+    // {
+    //     serde_json::to_string_pretty(self).unwrap()
+    // }
 }
+
+// impl<T: Output + std::fmt::Debug> std::fmt::Debug for T {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         f.debug_struct("MyTrait")
+//          .field("my_method", &self.my_method())
+//          .finish()
+//     }
+// }

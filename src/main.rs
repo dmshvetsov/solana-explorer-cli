@@ -3,6 +3,7 @@ mod balance;
 mod magiceden;
 mod metaplex;
 mod output;
+mod page;
 mod rpc;
 mod token;
 mod transaction;
