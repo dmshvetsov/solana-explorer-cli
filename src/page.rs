@@ -1,4 +1,4 @@
-use crate::output::{output_json, output_raw_struct, Output, OutputFormat};
+use crate::output::{Output, OutputFormat};
 
 pub struct Page {
     content: Vec<Box<dyn Output>>,
@@ -20,17 +20,20 @@ impl Page {
     pub fn display(self: &Self) {
         match self.format {
             OutputFormat::AsStruct => {
-                for box_s in self.content {
+                for box_s in &self.content {
                     println!(
-                        "se::{}::{:#?}",
+                        "se::{}::{}",
                         box_s.struct_name(),
-                        box_s.downcast::<Output>()
+                        box_s.as_ref().to_raw_struct()
                     );
                 }
             }
             OutputFormat::AsJson => {
-                for box_s in self.content {
-                    println!("se::{} {}", box_s.struct_name(), box_s.to_json());
+                for box_s in &self.content {
+                    // TODO: maybe page will be top level JSON "object" {}
+                    // and all elements will be "<name call vallue>": <to_json call value>
+                    // it must produce valid JSON so it can be copied or piped to other utils that works with JSON like `jq`
+                    println!("{}", box_s.as_ref().to_json());
                 }
             }
         }

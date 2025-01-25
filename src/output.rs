@@ -60,6 +60,8 @@ pub trait Output {
     //     type_prefix
     // }
 
+    fn to_raw_struct(self: &Self) -> String;
+
     fn to_json(self: &Self) -> String;
     // fn to_json(self: &Self) -> String
     // where
@@ -68,6 +70,12 @@ pub trait Output {
     //     serde_json::to_string_pretty(self).unwrap()
     // }
 }
+
+// impl Debug for dyn Output {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         write!(f, "{:#?}", self)
+//     }
+// }
 
 // impl<T: Output + std::fmt::Debug> std::fmt::Debug for T {
 //     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

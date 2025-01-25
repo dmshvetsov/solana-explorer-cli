@@ -60,6 +60,10 @@ impl Output for TokenMint {
         String::from("TokenMint")
     }
 
+    fn to_raw_struct(self: &Self) -> String {
+        format!("{:?}", self)
+    }
+
     fn to_json(self: &Self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
@@ -110,6 +114,10 @@ impl TokenAccount {
 impl Output for TokenAccount {
     fn struct_name(&self) -> String {
         String::from("TokenAccount")
+    }
+
+    fn to_raw_struct(self: &Self) -> String {
+        format!("{:?}", self)
     }
 
     fn to_json(self: &Self) -> String {

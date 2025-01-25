@@ -37,6 +37,10 @@ impl Output for Balance {
         String::from("Balance")
     }
 
+    fn to_raw_struct(self: &Self) -> String {
+        format!("{:?}", self)
+    }
+
     fn to_json(self: &Self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
