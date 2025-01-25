@@ -34,3 +34,24 @@ or check transactions
 same as
 
     $ se transaction <SIGNATURE HASH>
+
+see all commands with `help` command
+
+    $ se help
+
+```
+Usage: se <COMMAND>
+
+Commands:
+  account               show solana account state
+  ac                    alias for account command
+  transaction           show solana transaction
+  tx                    alias for transaction command
+  account-transactions  show account transactions
+  ac-txs                alias for account-transactions command
+  help                  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+```
