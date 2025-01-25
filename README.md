@@ -19,7 +19,7 @@ By default this CLI uses Solana mainnet-beta RPC `http://api.mainnet-beta.solana
 
     $ export SE_RPC_URL=<your Solana RPC provider URL>
 
-Start exploring accounts
+### explore accounts state
 
     $ se ac <ADDRESS>
 
@@ -27,7 +27,7 @@ same as
 
     $ se account <ADDRESS>
 
-or check transactions
+### check transactions
 
     $ se tx <SIGNATURE HASH>
 
@@ -35,7 +35,9 @@ same as
 
     $ se transaction <SIGNATURE HASH>
 
-see all commands with `help` command
+### other commands
+
+see all available commands with `help` command
 
     $ se help
 
