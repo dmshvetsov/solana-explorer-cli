@@ -21,11 +21,9 @@ impl Page {
         match self.format {
             OutputFormat::AsStruct => {
                 for box_s in &self.content {
-                    println!(
-                        "se::{}::{}",
-                        box_s.struct_name(),
-                        box_s.as_ref().to_raw_struct()
-                    );
+                    let name = box_s.struct_name();
+                    let output = box_s.to_raw_struct();
+                    println!("se::{name}::{output}");
                 }
             }
             OutputFormat::AsJson => {
@@ -33,7 +31,7 @@ impl Page {
                     // TODO: maybe page will be top level JSON "object" {}
                     // and all elements will be "<name call vallue>": <to_json call value>
                     // it must produce valid JSON so it can be copied or piped to other utils that works with JSON like `jq`
-                    println!("{}", box_s.as_ref().to_json());
+                    println!("{}", box_s.to_json());
                 }
             }
         }

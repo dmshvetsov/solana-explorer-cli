@@ -38,7 +38,7 @@ impl Output for Account {
     }
 
     fn to_raw_struct(self: &Self) -> String {
-        format!("{:?}", self)
+        format!("{:#?}", self)
     }
 
     fn to_json(self: &Self) -> String {

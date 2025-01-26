@@ -1,4 +1,3 @@
-use serde::Serialize;
 use std::error::Error;
 use std::fmt::Debug;
 
@@ -37,14 +36,6 @@ pub fn print_warning(msg: &str) {
 
 pub fn print_error<T: Error>(err: T) {
     println!("{}", err);
-}
-
-pub fn output_raw_struct<T: Debug + Output>(instance: T) {
-    println!("se::{}::{:#?}", instance.struct_name(), instance);
-}
-
-pub fn output_json<T: Output>(instance: T) {
-    println!("se::{} {}", instance.struct_name(), instance.to_json());
 }
 
 /// methods required to output a struct from the CLI
