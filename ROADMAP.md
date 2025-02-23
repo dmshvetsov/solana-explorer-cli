@@ -36,6 +36,17 @@
       - [ ] read data from sources iterating through the pages tuples
       - [ ] output result
       - [ ] remove duplication of read logic e.g. token_metadata duplication
+  - [ ] find solution to the problem that SE local structs hiding what structs were used to manipulate data in the code; this info could be valuable to know what structs were used to fetch and upack the data this helps developers to get same Rust libs and interact with Solana as SE crate does; possible solutions:
+    - mimic the path and names of original structs from libriries
+      - cons need to follow changes in original libraries
+      - pros i have full control over my local struct
+      - cons need a lot of boilre code
+    - add info to "explanation" section of Page output
+      - seem like a good tradeoff
+      - pros i have full control over my local struct
+      - cons need a lot of boilre code
+    - keep using original structs
+      - cons some structs is hard to serialized to JSON, can be more blocks with other formats or manipulations
 
 ## relevant info
 
