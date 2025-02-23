@@ -107,18 +107,11 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                     page.add(TokenMint::from(unpacked_data));
                     let metadata = get_token_metadata(&acc_pubkey);
                     page.add(TokenMetadata::from(metadata));
-                    // let token_mint = TokenMint::new(account, unpacked_data, metadata);
                 }
                 _ => {
                     // token account
                     let unpacked_data = spl_token::state::Account::unpack(&account.data).unwrap();
                     page.add(TokenAccount::from(unpacked_data));
-                    // let token_account = TokenAccount::new(account, unpacked_data);
-                    // page.add
-                    // match output_format {
-                    //     OutputFormat::AsStruct => output_raw_struct(token_account),
-                    //     OutputFormat::AsJson => output_json(token_account),
-                    // }
                 }
             }
         }
