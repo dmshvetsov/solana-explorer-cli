@@ -26,13 +26,16 @@ sleep 0.5
 
 # FTs
 
-echo "\n\nBERN token account"
+echo "\n\nRAYDIUM token mint"
 $SE account 4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 sleep 0.5
 
-echo "\n\nBERN token account with short ac alias"
+echo "\n\nRAYDIUM token mint with short ac alias"
 $SE ac 4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 sleep 0.5
+
+echo "\n\ntoken account for RAYDIUM"
+$SE account 2UYALq5MMJbDsxyftrjWjP1jDfQ3iQHXTEXh6zGxoo9H
 
 # Magic Eden Laucnhpads
 

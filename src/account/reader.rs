@@ -112,7 +112,9 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                 _ => {
                     // token account
                     let unpacked_data = spl_token::state::Account::unpack(&account.data).unwrap();
-                    let token_account = TokenAccount::new(account, unpacked_data);
+                    page.add(TokenAccount::from(unpacked_data));
+                    // let token_account = TokenAccount::new(account, unpacked_data);
+                    // page.add
                     // match output_format {
                     //     OutputFormat::AsStruct => output_raw_struct(token_account),
                     //     OutputFormat::AsJson => output_json(token_account),

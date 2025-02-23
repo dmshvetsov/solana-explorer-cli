@@ -3,9 +3,9 @@ use mpl_token_metadata::{
     accounts::Metadata,
     types::{Collection, CollectionDetails, Creator, Key, ProgrammableConfig, TokenStandard, Uses},
 };
-use serde::{ser::SerializeStruct, Serialize, Serializer};
-use solana_sdk::{account::Account as SolanaAccount, pubkey::Pubkey};
-use spl_token::state::{Account as SplAccount, Mint};
+use serde::{Serialize, Serializer};
+use solana_sdk::pubkey::Pubkey;
+use spl_token::state::{Account as SolanaSplTokenAccount, AccountState, Mint};
 
 ///
 /// Wallet/Owner Account -> Token Account -> Mint Account -> Metadata (PDA) Account
@@ -158,47 +158,92 @@ impl Output for TokenMetadata {
     }
 }
 
+fn serialize_account_state<S>(orig: &AccountState, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let s = match orig {
+        AccountState::Uninitialized => "Uninitialized",
+        AccountState::Initialized => "Initialized",
+        AccountState::Frozen => "Frozen",
+    };
+    serializer.serialize_str(s)
+}
+
 /// Token Account - stores number of token owned another account (wallet e.g.), Token progra owns
 /// and operates token accounts
 #[derive(Debug, Serialize)]
 pub struct TokenAccount {
-    pub account: SolanaAccount,
-    #[serde(serialize_with = "serialize_spl_account")]
-    pub data: SplAccount,
+    /// The mint associated with this account
+    pub mint: Pubkey,
+    /// The owner of this account.
+    pub owner: Pubkey,
+    /// The amount of tokens this account holds.
+    pub amount: u64,
+    /// If `delegate` is `Some` then `delegated_amount` represents
+    /// the amount authorized by the delegate
+    pub delegate: Option<Pubkey>,
+    /// The account's state
+    #[serde(serialize_with = "serialize_account_state")]
+    pub state: AccountState,
+    /// If is_native.is_some, this is a native token, and the value logs the
+    /// rent-exempt reserve. An Account is required to be rent-exempt, so
+    /// the value is used by the Processor to ensure that wrapped SOL
+    /// accounts do not drop below this threshold.
+    pub is_native: Option<u64>,
+    /// The amount delegated
+    pub delegated_amount: u64,
+    /// Optional authority to close the account.
+    pub close_authority: Option<Pubkey>,
 }
 
-fn serialize_spl_account<S>(mint: &SplAccount, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let mut s = serializer.serialize_struct("Account", 7)?;
-    s.serialize_field("mint", &format!("{:?}", &mint.mint))?;
-    s.serialize_field("owner", &format!("{:?}", &mint.owner))?;
-    if mint.delegate.is_some() {
-        s.serialize_field("delegate", &format!("{:?}", &mint.delegate))?;
-    } else {
-        s.serialize_field("delegate", &None::<Pubkey>)?;
+impl From<SolanaSplTokenAccount> for TokenAccount {
+    fn from(spl_token_account: SolanaSplTokenAccount) -> Self {
+        TokenAccount {
+            mint: spl_token_account.mint,
+            owner: spl_token_account.owner,
+            amount: spl_token_account.amount,
+            delegate: spl_token_account.delegate.into(),
+            state: spl_token_account.state,
+            is_native: spl_token_account.is_native.into(),
+            delegated_amount: spl_token_account.delegated_amount,
+            close_authority: spl_token_account.close_authority.into(),
+        }
     }
-    s.serialize_field("state", &format!("{:?}", &mint.state))?;
-    if mint.delegate.is_some() {
-        s.serialize_field("is_native", &format!("{:?}", &mint.is_native))?;
-    } else {
-        s.serialize_field("is_native", &None::<u64>)?;
-    }
-    s.serialize_field("delegated_amount", &mint.delegated_amount)?;
-    if mint.delegate.is_some() {
-        s.serialize_field("close_authority", &format!("{:?}", &mint.close_authority))?;
-    } else {
-        s.serialize_field("close_authority", &None::<Pubkey>)?;
-    }
-    s.end()
 }
 
-impl TokenAccount {
-    pub fn new(account: SolanaAccount, data: SplAccount) -> Self {
-        TokenAccount { account, data }
-    }
-}
+// fn serialize_spl_account<S>(mint: &SolanaSplTokenAccount, serializer: S) -> Result<S::Ok, S::Error>
+// where
+//     S: Serializer,
+// {
+//     let mut s = serializer.serialize_struct("Account", 7)?;
+//     s.serialize_field("mint", &format!("{:?}", &mint.mint))?;
+//     s.serialize_field("owner", &format!("{:?}", &mint.owner))?;
+//     if mint.delegate.is_some() {
+//         s.serialize_field("delegate", &format!("{:?}", &mint.delegate))?;
+//     } else {
+//         s.serialize_field("delegate", &None::<Pubkey>)?;
+//     }
+//     s.serialize_field("state", &format!("{:?}", &mint.state))?;
+//     if mint.delegate.is_some() {
+//         s.serialize_field("is_native", &format!("{:?}", &mint.is_native))?;
+//     } else {
+//         s.serialize_field("is_native", &None::<u64>)?;
+//     }
+//     s.serialize_field("delegated_amount", &mint.delegated_amount)?;
+//     if mint.delegate.is_some() {
+//         s.serialize_field("close_authority", &format!("{:?}", &mint.close_authority))?;
+//     } else {
+//         s.serialize_field("close_authority", &None::<Pubkey>)?;
+//     }
+//     s.end()
+// }
+
+// impl TokenAccount {
+//     pub fn new(account: SolanaAccount, data: SolanaSplTokenAccount) -> Self {
+//         TokenAccount { account, data }
+//     }
+// }
 
 impl Output for TokenAccount {
     fn struct_name(&self) -> String {
@@ -206,7 +251,7 @@ impl Output for TokenAccount {
     }
 
     fn to_raw_struct(self: &Self) -> String {
-        format!("{:?}", self)
+        format!("{:#?}", self)
     }
 
     fn to_json(self: &Self) -> String {
