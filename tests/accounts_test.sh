@@ -12,8 +12,12 @@ echo "\n\n Metaplex metadata account"
 $SE account FeYYbECgnky3rWrmxBB7cybWgyUNEVKwQQWb8oU8DnMj
 sleep 0.5
 
-echo "\n\np MPL Core NFT"
+echo "\n\np MPL Core Collection"
 $SE account HGFDAByQskKo9Az9yAtgg6qP8TnwMayZGKbyi3vkanzT
+sleep 0.5
+
+echo "\n\np MPL Core NFT (asset)"
+$SE account sreKwbJ1z9T58KNim5Tb5vX7m6cAYSiUDCThhMTje4i
 sleep 0.5
 
 echo "\n\np MPL Core NFT with json format"
