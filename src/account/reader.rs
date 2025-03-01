@@ -1,7 +1,10 @@
 use crate::{
     balance::{Balance, SplBalance},
     magiceden::{self, cm},
-    metaplex::das as mpl_das,
+    metaplex::{
+        core::{CoreAssetV1, CoreCollectionV1},
+        das as mpl_das,
+    },
     output::{print_error, print_struct, print_warning, OutputFormat},
     page::Page,
     rpc,
@@ -67,14 +70,17 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         }
     };
 
+    let mut page = Page::new(output_format);
+
     let account = match get_account(&acc_pubkey) {
         Ok(account) => account,
         Err(err) => {
             if err.kind.to_string() == format!("AccountNotFound: pubkey={}", acc_pubkey) {
                 // it can be a Metaplex Digital asset
-                let asset = get_das_asset(&acc_pubkey);
-                if asset.is_ok() {
-                    print_struct(&asset);
+                let das_asset = get_das_asset(&acc_pubkey);
+                if das_asset.is_ok() {
+                    page.add(das_asset.unwrap());
+                    page.display();
                     return;
                 }
             }
@@ -90,7 +96,6 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         // exit(0);
     }
 
-    let mut page = Page::new(output_format);
     page.add(Account::new(&acc_pubkey, &account));
 
     // non-program accounts
@@ -123,29 +128,20 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             // check first byte that represents mpl_core Key enum to determint type of account
             match account.data[0] {
                 5 => {
-                    match mpl_core::accounts::BaseCollectionV1::from_bytes(&account.data) {
-                        Ok(unpacked_data) => print_struct(unpacked_data),
-                        Err(err) => {
-                            print_error(err);
-                            exit(1);
-                        }
-                    };
+                    let unpacked_data =
+                        mpl_core::accounts::BaseCollectionV1::from_bytes(&account.data).unwrap();
+                    page.add(CoreCollectionV1::from(unpacked_data));
                 }
                 1 => {
-                    match mpl_core::accounts::BaseAssetV1::from_bytes(&account.data) {
-                        Ok(unpacked_data) => print_struct(unpacked_data),
-                        Err(err) => {
-                            print_error(err);
-                            exit(1);
-                        }
-                    };
+                    let unpacked_data =
+                        mpl_core::accounts::BaseAssetV1::from_bytes(&account.data).unwrap();
+                    page.add(CoreAssetV1::from(unpacked_data));
                 }
                 _ => todo!(),
             }
             let das_asset = get_das_asset(&acc_pubkey);
-            // TODO: add formats
             if das_asset.is_ok() {
-                print_struct(das_asset);
+                page.add(das_asset.unwrap());
             }
         }
         SolanaAccount {

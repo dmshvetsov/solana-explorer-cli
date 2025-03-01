@@ -1,16 +1,30 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+use crate::output::Output;
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Asset {
     pub content: Content,
     pub authorities: Vec<Authority>,
     pub compression: Compression,
 }
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+impl Output for Asset {
+    fn struct_name(self: &Self) -> String {
+        String::from("Asset")
+    }
+
+    fn to_raw_struct(self: &Self) -> String {
+        format!("{:#?}", self)
+    }
+
+    fn to_json(self: &Self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Content {
     pub metadata: Metadata,
     pub edition_num: Option<u64>,
@@ -18,29 +32,25 @@ pub struct Content {
     pub links: Option<Links>,
 }
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Authority {
     pub address: String,
     pub scopes: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Links {
     pub image: Option<String>,
     pub external_url: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AssetFile {
     pub uri: String,
     pub mime: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Metadata {
     pub name: String,
     pub symbol: String,
@@ -49,15 +59,13 @@ pub struct Metadata {
     pub token_standard: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Attribute {
     pub value: String,
     pub trait_type: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Compression {
     pub eligible: bool,
     pub compressed: bool,

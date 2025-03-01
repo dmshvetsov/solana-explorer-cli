@@ -29,7 +29,7 @@ impl Page {
             OutputFormat::AsJson => {
                 for box_s in &self.content {
                     // TODO: maybe page will be top level JSON "object" {}
-                    // and all elements will be "<name call vallue>": <to_json call value>
+                    // and all elements will be "<name call value>": <to_json call value>
                     // it must produce valid JSON so it can be copied or piped to other utils that works with JSON like `jq`
                     println!("{}", box_s.to_json());
                 }

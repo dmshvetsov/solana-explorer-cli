@@ -2166,7 +2166,9 @@ dependencies = [
  "num-derive 0.3.3",
  "num-traits",
  "rmp-serde",
+ "serde",
  "serde_json",
+ "serde_with",
  "solana-program",
  "thiserror 1.0.69",
 ]
