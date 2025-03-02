@@ -5,7 +5,7 @@ use crate::{
         core::{CoreAssetV1, CoreCollectionV1},
         das as mpl_das,
     },
-    output::{print_error, print_struct, print_warning, OutputFormat},
+    output::{print_error, print_warning, OutputFormat},
     page::Page,
     rpc,
     token::{TokenAccount, TokenMetadata, TokenMint},
@@ -27,12 +27,6 @@ use solana_sdk::{
 use std::{process::exit, str::FromStr};
 
 use super::Account;
-
-fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata {
-    let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
-    let metadata_account = get_account(&metadata_pda).unwrap();
-    mpl_token_metadata::accounts::Metadata::safe_deserialize(metadata_account.data()).unwrap()
-}
 
 // fn read_program_idl(pubkey: &Pubkey) {
 //     // TODO: handle inconsistency here we print JSON every time despite command format param/flag
@@ -110,8 +104,16 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                     // mint account: 1000 NFT, 0000 FT
                     let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
                     page.add(TokenMint::from(unpacked_data));
-                    let metadata = get_token_metadata(&acc_pubkey);
-                    page.add(TokenMetadata::from(metadata));
+                    let (metadata_pda, _) =
+                        mpl_token_metadata::accounts::Metadata::find_pda(&acc_pubkey);
+                    let metadata_account = get_account(&metadata_pda).unwrap();
+                    page.add(Account::new(&metadata_pda, &metadata_account));
+                    page.add(TokenMetadata::from(
+                        mpl_token_metadata::accounts::Metadata::safe_deserialize(
+                            metadata_account.data(),
+                        )
+                        .unwrap(),
+                    ));
                 }
                 _ => {
                     // token account
@@ -148,11 +150,12 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             owner: mpl_token_metadata::ID,
             ..
         } => {
+            // TODO: remove duplication of spl_token::ID case
             let metadata_acc = get_account(&acc_pubkey).unwrap();
-            let metadata =
-                mpl_token_metadata::accounts::Metadata::safe_deserialize(&metadata_acc.data);
-            // TODO: add formats
-            print_struct(metadata);
+            let unpacked_data =
+                mpl_token_metadata::accounts::Metadata::safe_deserialize(&metadata_acc.data)
+                    .unwrap();
+            page.add(TokenMetadata::from(unpacked_data));
         }
         // Magic Eden Candy Machine
         SolanaAccount {
