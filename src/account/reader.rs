@@ -165,12 +165,6 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             let me_candy_machine = cm::CandyMachine::unpack(&account.data).unwrap();
             page.add(me_candy_machine);
         }
-        // match output_format {
-        // OutputFormat::AsStruct => {
-        //     print_struct(cm::CandyMachine::unpack(&account.data).unwrap())
-        // }
-        // OutputFormat::AsJson => todo!(),
-        // },
         // System Program 11111111111111111111111111111111, on-curve, non-executable account
         // (a key-pair "wallet" with balance)
         SolanaAccount {
