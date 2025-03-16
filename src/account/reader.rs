@@ -127,7 +127,7 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             owner: mpl_core::ID,
             ..
         } => {
-            // check first byte that represents mpl_core Key enum to determint type of account
+            // check first byte that represents mpl_core Key enum to determine type of account
             match account.data[0] {
                 5 => {
                     let unpacked_data =
@@ -163,6 +163,7 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             ..
         } => {
             let me_candy_machine = cm::CandyMachine::unpack(&account.data).unwrap();
+            page.add(me_candy_machine);
         }
         // match output_format {
         // OutputFormat::AsStruct => {
