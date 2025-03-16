@@ -28,6 +28,8 @@ echo "\n\ncNFT"
 $SE account 9HNN54hfD3GVy4WkUtXjJdxaTo9tjFzYmEXYN9eHnLZp
 sleep 0.5
 
+echo "\n"
+
 # FTs
 
 echo "\n\nRAYDIUM token mint"
@@ -48,9 +50,14 @@ $SE account 2UYALq5MMJbDsxyftrjWjP1jDfQ3iQHXTEXh6zGxoo9H
 # $SE account Aq9PkNTgWdmhA24xAcKYYZwLDo1CfEUk6EqrZ87RsuEJ
 # sleep 0.5
 
-echo "\n\nMagic Eden Core Open Edition"
+echo "\n\nMagic Eden Launchpad Open Edition"
 $SE account DQebYkR5JxtpCpvNJu1u3FEJDhat3kkVgk3bbBr6iAAW
 sleep 0.5
+
+# FIXME: failing
+# echo "\n\nMagic Eden Launchpad Open Edition #2"
+# $SE account C999MYNwVweQikhoW4pPcHzjnS6FmJVmMKSERhRhFwXA
+# sleep 0.5
 
 echo "\n\nMagic Eden Launchpad #1"
 $SE account D2Fbhy8pPi47w7gaDEYmSzskAAQFUqiHG53hUE71HpC2
