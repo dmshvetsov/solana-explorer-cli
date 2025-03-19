@@ -24,11 +24,17 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Resource {
+    /// show solana account state
     Account(AccountCommand),
+    /// alias for account command
     Ac(AccountCommand),
+    /// show solana transaction
     Transaction(TransactionCommand),
+    /// alias for transaction command
     Tx(TransactionCommand),
+    /// show account transactions
     AccountTransactions(ListAccountTransactionsCommand),
+    /// alias for account-transactions command
     AcTxs(ListAccountTransactionsCommand),
 }
 
