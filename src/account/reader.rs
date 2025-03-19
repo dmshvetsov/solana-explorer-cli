@@ -215,10 +215,7 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
 
             // TODO: sort by balance
             balance.set_spl(spl_token_balances);
-            // match output_format {
-            //     OutputFormat::AsStruct => output_raw_struct(balance),
-            //     OutputFormat::AsJson => output_json(balance),
-            // }
+            page.add(balance);
         }
         _ => {
             todo!("account address {} with data size {} owned by {} program, not supported yet in solana explorer CLI", acc_pubkey, account.data.len(), account.owner.to_string());
