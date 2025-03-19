@@ -1,12 +1,14 @@
 use crate::{
     balance::{Balance, SplBalance},
     magiceden::{self, cm},
-    metaplex::das as mpl_das,
-    output::{
-        output_json, output_raw_struct, print_error, print_struct, print_warning, OutputFormat,
+    metaplex::{
+        core::{CoreAssetV1, CoreCollectionV1},
+        das as mpl_das,
     },
+    output::{print_error, print_warning, OutputFormat},
+    page::Page,
     rpc,
-    token::{TokenAccount, TokenMint},
+    token::{TokenAccount, TokenMetadata, TokenMint},
 };
 use serde_json::json;
 use solana_account_decoder_client_types::UiAccountEncoding;
@@ -24,11 +26,7 @@ use solana_sdk::{
 };
 use std::{process::exit, str::FromStr};
 
-fn get_token_metadata(pubkey: &Pubkey) -> mpl_token_metadata::accounts::Metadata {
-    let (metadata_pda, _) = mpl_token_metadata::accounts::Metadata::find_pda(pubkey);
-    let metadata_account = get_account(&metadata_pda).unwrap();
-    mpl_token_metadata::accounts::Metadata::safe_deserialize(metadata_account.data()).unwrap()
-}
+use super::Account;
 
 // fn read_program_idl(pubkey: &Pubkey) {
 //     // TODO: handle inconsistency here we print JSON every time despite command format param/flag
@@ -66,6 +64,8 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         }
     };
 
+    let mut page = Page::new(output_format);
+
     let account = match get_account(&acc_pubkey) {
         Ok(account) => account,
         Err(err) => {
@@ -74,12 +74,13 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                 // it can be a Metaplex Digital asset (DAS)
                 match get_das_asset(&acc_pubkey) {
                     Ok(asset) => {
-                        print_struct(&asset);
+                        page.add(asset);
+                        page.display();
                         exit(0);
                     }
                     _ => {
-                        // not a DAS either
-                        // do nothing and throw original "not found" error, see below
+                        // not a DAS
+                        // do nothing and throw "not found" error
                     }
                 }
             }
@@ -95,6 +96,8 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         // exit(0);
     }
 
+    page.add(Account::new(&acc_pubkey, &account));
+
     // non-program accounts
     match account {
         // Token Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
@@ -104,24 +107,24 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
         } => {
             match &account.data[0..4] {
                 &[1, 0, 0, 0] | &[0, 0, 0, 0] => {
-                    // mint account
-                    // 1000 NFT, 0000 FT
+                    // mint account: 1000 NFT, 0000 FT
                     let unpacked_data = spl_token::state::Mint::unpack(&account.data).unwrap();
-                    let metadata = get_token_metadata(&acc_pubkey);
-                    let token_mint = TokenMint::new(account, unpacked_data, metadata);
-                    match output_format {
-                        OutputFormat::AsStruct => output_raw_struct(token_mint),
-                        OutputFormat::AsJson => output_json(token_mint),
-                    }
+                    page.add(TokenMint::from(unpacked_data));
+                    let (metadata_pda, _) =
+                        mpl_token_metadata::accounts::Metadata::find_pda(&acc_pubkey);
+                    let metadata_account = get_account(&metadata_pda).unwrap();
+                    page.add(Account::new(&metadata_pda, &metadata_account));
+                    page.add(TokenMetadata::from(
+                        mpl_token_metadata::accounts::Metadata::safe_deserialize(
+                            metadata_account.data(),
+                        )
+                        .unwrap(),
+                    ));
                 }
                 _ => {
                     // token account
                     let unpacked_data = spl_token::state::Account::unpack(&account.data).unwrap();
-                    let token_account = TokenAccount::new(account, unpacked_data);
-                    match output_format {
-                        OutputFormat::AsStruct => output_raw_struct(token_account),
-                        OutputFormat::AsJson => output_json(token_account),
-                    }
+                    page.add(TokenAccount::from(unpacked_data));
                 }
             }
         }
@@ -130,36 +133,26 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             owner: mpl_core::ID,
             ..
         } => {
-            // check first byte that represents mpl_core Key enum to determint type of account
+            // check first byte that represents mpl_core Key enum to determine type of account
             match account.data[0] {
                 5 => {
-                    match mpl_core::accounts::BaseCollectionV1::from_bytes(&account.data) {
-                        Ok(unpacked_data) => print_struct(unpacked_data),
-                        Err(err) => {
-                            print_error(err);
-                            exit(1);
-                        }
-                    };
+                    let unpacked_data =
+                        mpl_core::accounts::BaseCollectionV1::from_bytes(&account.data).unwrap();
+                    page.add(CoreCollectionV1::from(unpacked_data));
                 }
                 1 => {
-                    match mpl_core::accounts::BaseAssetV1::from_bytes(&account.data) {
-                        Ok(unpacked_data) => print_struct(unpacked_data),
-                        Err(err) => {
-                            print_error(err);
-                            exit(1);
-                        }
-                    };
+                    let unpacked_data =
+                        mpl_core::accounts::BaseAssetV1::from_bytes(&account.data).unwrap();
+                    page.add(CoreAssetV1::from(unpacked_data));
                 }
                 _ => todo!(),
             }
             match get_das_asset(&acc_pubkey) {
                 Ok(asset) => {
-                    // TODO: add formats
-                    print_struct(&asset);
-                    exit(0);
+                    page.add(asset);
                 }
                 _ => {
-                    // not a DAS either
+                    // not a DAS
                     // do nothing
                 }
             }
@@ -168,22 +161,21 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
             owner: mpl_token_metadata::ID,
             ..
         } => {
+            // TODO: remove duplication of spl_token::ID case
             let metadata_acc = get_account(&acc_pubkey).unwrap();
-            let metadata =
-                mpl_token_metadata::accounts::Metadata::safe_deserialize(&metadata_acc.data);
-            // TODO: add formats
-            print_struct(metadata);
+            let unpacked_data =
+                mpl_token_metadata::accounts::Metadata::safe_deserialize(&metadata_acc.data)
+                    .unwrap();
+            page.add(TokenMetadata::from(unpacked_data));
         }
         // Magic Eden Candy Machine
         SolanaAccount {
             owner: magiceden::cm::CMZ_ID,
             ..
-        } => match output_format {
-            OutputFormat::AsStruct => {
-                print_struct(cm::CandyMachine::unpack(&account.data).unwrap())
-            }
-            OutputFormat::AsJson => todo!(),
-        },
+        } => {
+            let me_candy_machine = cm::CandyMachine::unpack(&account.data).unwrap();
+            page.add(me_candy_machine);
+        }
         // System Program 11111111111111111111111111111111, on-curve, non-executable account
         // (a key-pair "wallet" with balance)
         SolanaAccount {
@@ -234,15 +226,14 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
 
             // TODO: sort by balance
             balance.set_spl(spl_token_balances);
-            match output_format {
-                OutputFormat::AsStruct => output_raw_struct(balance),
-                OutputFormat::AsJson => output_json(balance),
-            }
+            page.add(balance);
         }
         _ => {
             todo!("account address {} with data size {} owned by {} program, not supported yet in solana explorer CLI", acc_pubkey, account.data.len(), account.owner.to_string());
         }
     };
+
+    page.display();
 }
 
 fn get_account(pubkey: &Pubkey) -> Result<SolanaAccount, RpcClientError> {

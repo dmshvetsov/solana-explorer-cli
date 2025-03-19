@@ -12,8 +12,12 @@ echo "\n\n Metaplex metadata account"
 $SE account FeYYbECgnky3rWrmxBB7cybWgyUNEVKwQQWb8oU8DnMj
 sleep 0.5
 
-echo "\n\np MPL Core NFT"
+echo "\n\np MPL Core Collection"
 $SE account HGFDAByQskKo9Az9yAtgg6qP8TnwMayZGKbyi3vkanzT
+sleep 0.5
+
+echo "\n\np MPL Core NFT (asset)"
+$SE account sreKwbJ1z9T58KNim5Tb5vX7m6cAYSiUDCThhMTje4i
 sleep 0.5
 
 echo "\n\np MPL Core NFT with json format"
@@ -24,15 +28,20 @@ echo "\n\ncNFT"
 $SE account 9HNN54hfD3GVy4WkUtXjJdxaTo9tjFzYmEXYN9eHnLZp
 sleep 0.5
 
+echo "\n"
+
 # FTs
 
-echo "\n\nBERN token account"
+echo "\n\nRAYDIUM token mint"
 $SE account 4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 sleep 0.5
 
-echo "\n\nBERN token account with short ac alias"
+echo "\n\nRAYDIUM token mint with short ac alias"
 $SE ac 4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R
 sleep 0.5
+
+echo "\n\ntoken account for RAYDIUM"
+$SE account 2UYALq5MMJbDsxyftrjWjP1jDfQ3iQHXTEXh6zGxoo9H
 
 # Magic Eden Laucnhpads
 
@@ -41,9 +50,14 @@ sleep 0.5
 # $SE account Aq9PkNTgWdmhA24xAcKYYZwLDo1CfEUk6EqrZ87RsuEJ
 # sleep 0.5
 
-echo "\n\nMagic Eden Core Open Edition"
+echo "\n\nMagic Eden Launchpad Open Edition"
 $SE account DQebYkR5JxtpCpvNJu1u3FEJDhat3kkVgk3bbBr6iAAW
 sleep 0.5
+
+# FIXME: failing
+# echo "\n\nMagic Eden Launchpad Open Edition #2"
+# $SE account C999MYNwVweQikhoW4pPcHzjnS6FmJVmMKSERhRhFwXA
+# sleep 0.5
 
 echo "\n\nMagic Eden Launchpad #1"
 $SE account D2Fbhy8pPi47w7gaDEYmSzskAAQFUqiHG53hUE71HpC2

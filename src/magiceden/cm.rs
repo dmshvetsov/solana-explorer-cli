@@ -1,13 +1,16 @@
 use std::io;
 
 use borsh::BorshDeserialize;
+use serde::Serialize;
 use solana_sdk::pubkey::Pubkey;
+
+use crate::output::Output;
 
 pub const CMZ_ID: Pubkey =
     solana_sdk::pubkey::Pubkey::from_str_const("CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb");
 
 // source https://github.com/me-foundation/cmx/blob/main/programs/cmx/src/state.rs
-#[derive(BorshDeserialize, Debug, Default)]
+#[derive(BorshDeserialize, Debug, Default, Serialize)]
 #[allow(dead_code)]
 pub struct CandyMachine {
     pub authority: Pubkey,
@@ -62,5 +65,19 @@ impl CandyMachine {
             io::ErrorKind::InvalidData,
             "can't unpack Candy Machine data",
         ))
+    }
+}
+
+impl Output for CandyMachine {
+    fn struct_name(self: &Self) -> String {
+        String::from("CandyMachine")
+    }
+
+    fn to_raw_struct(self: &Self) -> String {
+        format!("{:#?}", self)
+    }
+
+    fn to_json(self: &Self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
     }
 }
