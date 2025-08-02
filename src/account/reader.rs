@@ -220,7 +220,7 @@ pub fn read_account(address: &str, output_format: OutputFormat) {
                         )
                         .unwrap();
                         let (_, amount) = mint_balances[idx];
-                        SplBalance { amount, metadata }
+                        SplBalance { amount, metadata: metadata.into() }
                     })
                     .collect();
 

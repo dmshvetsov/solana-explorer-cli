@@ -40,9 +40,9 @@ pub fn print_error<T: Error>(err: T) {
 
 /// methods required to output a struct from the CLI
 pub trait Output {
-    fn struct_name(self: &Self) -> String;
+    fn struct_name(&self) -> String;
 
-    fn to_raw_struct(self: &Self) -> String;
+    fn to_raw_struct(&self) -> String;
 
-    fn to_json(self: &Self) -> String;
+    fn to_json(&self) -> String;
 }
