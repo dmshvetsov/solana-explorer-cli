@@ -1,4 +1,4 @@
-use crate::output::Output;
+use crate::{output::Output, pretty_string::PrettyString};
 use mpl_token_metadata::{
     accounts::Metadata,
     types::{Collection, CollectionDetails, Creator, Key, ProgrammableConfig, TokenStandard, Uses},
@@ -47,11 +47,11 @@ impl Output for TokenMint {
         String::from("TokenMint")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }
@@ -62,9 +62,9 @@ pub struct TokenMetadata {
     pub key: Key,
     pub update_authority: Pubkey,
     pub mint: Pubkey,
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
+    pub name: PrettyString,
+    pub symbol: PrettyString,
+    pub uri: PrettyString,
     pub seller_fee_basis_points: u16,
     pub creators: Option<Vec<Creator>>,
     pub primary_sale_happened: bool,
@@ -83,9 +83,9 @@ impl From<Metadata> for TokenMetadata {
             key: mpl_metadata.key,
             update_authority: mpl_metadata.update_authority,
             mint: mpl_metadata.mint,
-            name: mpl_metadata.name,
-            symbol: mpl_metadata.symbol,
-            uri: mpl_metadata.uri,
+            name: mpl_metadata.name.into(),
+            symbol: mpl_metadata.symbol.into(),
+            uri: mpl_metadata.uri.into(),
             seller_fee_basis_points: mpl_metadata.seller_fee_basis_points,
             creators: mpl_metadata.creators,
             primary_sale_happened: mpl_metadata.primary_sale_happened,
@@ -105,11 +105,11 @@ impl Output for TokenMetadata {
         String::from("TokenMetadata")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }
@@ -173,11 +173,11 @@ impl Output for TokenAccount {
         String::from("TokenAccount")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }

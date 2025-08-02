@@ -37,11 +37,11 @@ impl Output for Account {
         String::from("Account")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }

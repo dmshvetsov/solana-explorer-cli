@@ -5,14 +5,14 @@ use mpl_core::{
 use serde::Serialize;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::output::Output;
+use crate::{output::Output, pretty_string::PrettyString};
 
 #[derive(Debug, Serialize)]
 pub struct CoreCollectionV1 {
     pub key: Key,
     pub update_authority: Pubkey,
-    pub name: String,
-    pub uri: String,
+    pub name: PrettyString,
+    pub uri: PrettyString,
     pub num_minted: u32,
     pub current_size: u32,
 }
@@ -22,8 +22,8 @@ impl From<BaseCollectionV1> for CoreCollectionV1 {
         CoreCollectionV1 {
             key: collection.key,
             update_authority: collection.update_authority,
-            name: collection.name,
-            uri: collection.uri,
+            name: collection.name.into(),
+            uri: collection.uri.into(),
             num_minted: collection.num_minted,
             current_size: collection.current_size,
         }

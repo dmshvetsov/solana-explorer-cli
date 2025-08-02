@@ -1,5 +1,5 @@
 use crate::output::Output;
-use mpl_token_metadata::accounts::Metadata;
+use crate::token::TokenMetadata;
 use serde::Serialize;
 use solana_sdk::account::Account as SolanaAccount;
 use solana_sdk::{account::ReadableAccount, native_token::lamports_to_sol};
@@ -14,7 +14,7 @@ pub struct Balance {
 pub struct SplBalance {
     // TODO: need to know decimals value and value in f64 for readability
     pub amount: u64,
-    pub metadata: Metadata,
+    pub metadata: TokenMetadata,
 }
 
 impl Balance {
@@ -37,11 +37,11 @@ impl Output for Balance {
         String::from("Balance")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }
