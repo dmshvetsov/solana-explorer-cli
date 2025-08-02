@@ -31,15 +31,15 @@ impl From<BaseCollectionV1> for CoreCollectionV1 {
 }
 
 impl Output for CoreCollectionV1 {
-    fn struct_name(self: &Self) -> String {
+    fn struct_name(&self) -> String {
         String::from("CoreCollectionV1")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }
@@ -53,8 +53,8 @@ pub struct CoreAssetV1 {
     )]
     pub owner: Pubkey,
     pub update_authority: UpdateAuthority,
-    pub name: String,
-    pub uri: String,
+    pub name: PrettyString,
+    pub uri: PrettyString,
     pub seq: Option<u64>,
 }
 
@@ -64,23 +64,23 @@ impl From<BaseAssetV1> for CoreAssetV1 {
             key: asset.key,
             owner: asset.owner,
             update_authority: asset.update_authority,
-            name: asset.name,
-            uri: asset.uri,
+            name: asset.name.into(),
+            uri: asset.uri.into(),
             seq: asset.seq,
         }
     }
 }
 
 impl Output for CoreAssetV1 {
-    fn struct_name(self: &Self) -> String {
+    fn struct_name(&self) -> String {
         String::from("CoreAssetV1")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }
