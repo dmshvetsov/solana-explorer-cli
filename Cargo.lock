@@ -3767,7 +3767,7 @@ dependencies = [
 
 [[package]]
 name = "solana-explorer-cli"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "borsh 0.10.3",
  "clap",
