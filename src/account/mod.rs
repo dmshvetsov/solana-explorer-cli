@@ -7,12 +7,13 @@ use uom::si;
 use uom::si::information::byte;
 
 use crate::output::Output;
+use crate::pretty::public_key::PrettyPublicKey;
 
 #[derive(Debug, Serialize)]
 pub struct Account {
     pub lamports: u64,
-    pub public_key: Pubkey,
-    pub owner: Pubkey,
+    pub public_key: PrettyPublicKey,
+    pub owner: PrettyPublicKey,
     pub executable: bool,
     pub rent_epoch: u64,
     // pub data_size: si::information::Information<_, f64>,
@@ -23,8 +24,8 @@ impl Account {
     pub fn new(acc_pubkey: &Pubkey, account: &SolanaAccount) -> Self {
         Account {
             lamports: account.lamports,
-            public_key: *acc_pubkey,
-            owner: account.owner,
+            public_key: PrettyPublicKey::from(*acc_pubkey),
+            owner: account.owner.into(),
             executable: account.executable,
             rent_epoch: account.rent_epoch,
             data_size: si::information::Information::new::<byte>(account.data.len()),

@@ -4,18 +4,17 @@ use borsh::BorshDeserialize;
 use serde::Serialize;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::output::Output;
+use crate::{output::Output, pretty::public_key::PrettyPublicKey};
 
 pub const CMZ_ID: Pubkey =
     solana_sdk::pubkey::Pubkey::from_str_const("CMZYPASGWeTz7RNGHaRJfCq2XQ5pYK6nDvVQxzkH51zb");
 
 // source https://github.com/me-foundation/cmx/blob/main/programs/cmx/src/state.rs
 #[derive(BorshDeserialize, Debug, Default, Serialize)]
-#[allow(dead_code)]
 pub struct CandyMachine {
-    pub authority: Pubkey,
-    pub wallet_authority: Pubkey,
-    pub config: Pubkey,
+    pub authority: PrettyPublicKey,
+    pub wallet_authority: PrettyPublicKey,
+    pub config: PrettyPublicKey,
     pub items_redeemed_normal: u64,
     pub items_redeemed_raffle: u64,
     pub raffle_tickets_purchased: u64,
@@ -23,11 +22,11 @@ pub struct CandyMachine {
     pub items_available: u64,
     pub raffle_seed: u64,
     pub bump: u8,
-    pub notary: Option<Pubkey>,
-    pub order_info: Pubkey,
+    pub notary: Option<PrettyPublicKey>,
+    pub order_info: PrettyPublicKey,
     pub is_lite: bool,
     pub notary_required: Vec<bool>,
-    pub mip1_ruleset: Option<Pubkey>,
+    pub mip1_ruleset: Option<PrettyPublicKey>,
     pub is_open_edition: Option<bool>,
 }
 

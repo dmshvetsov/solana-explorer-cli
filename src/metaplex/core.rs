@@ -5,7 +5,7 @@ use mpl_core::{
 use serde::Serialize;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::{output::Output, pretty_string::PrettyString};
+use crate::{output::Output, pretty::{public_key::PrettyPublicKey, string::PrettyString}};
 
 #[derive(Debug, Serialize)]
 pub struct CoreCollectionV1 {
@@ -47,11 +47,7 @@ impl Output for CoreCollectionV1 {
 #[derive(Debug, Serialize)]
 pub struct CoreAssetV1 {
     pub key: Key,
-    #[cfg_attr(
-        feature = "serde",
-        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
-    )]
-    pub owner: Pubkey,
+    pub owner: PrettyPublicKey,
     pub update_authority: UpdateAuthority,
     pub name: PrettyString,
     pub uri: PrettyString,
@@ -62,7 +58,7 @@ impl From<BaseAssetV1> for CoreAssetV1 {
     fn from(asset: BaseAssetV1) -> Self {
         CoreAssetV1 {
             key: asset.key,
-            owner: asset.owner,
+            owner: asset.owner.into(),
             update_authority: asset.update_authority,
             name: asset.name.into(),
             uri: asset.uri.into(),

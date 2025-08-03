@@ -7,7 +7,7 @@ mod page;
 mod rpc;
 mod token;
 mod transaction;
-mod pretty_string;
+mod pretty;
 
 use account::reader::read_account;
 use clap::{Args, Parser, Subcommand};
