@@ -189,6 +189,9 @@ impl fmt::Debug for PrettyPublicKey {
             "DoqmnA7F7k5D1xdGQ4ejzZopfecgJYSWXe1WfJrveW1R" => {
                 write!(f, "[Metaplex Candy Machine Legacy] {}", self.value)
             }
+            "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d" => {
+                write!(f, "[Metaplex Core Program] {}", self.value)
+            },
             "cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ" => {
                 write!(f, "[Metaplex Candy Machine Core] {}", self.value)
             }
