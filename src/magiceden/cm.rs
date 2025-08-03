@@ -68,15 +68,15 @@ impl CandyMachine {
 }
 
 impl Output for CandyMachine {
-    fn struct_name(self: &Self) -> String {
+    fn struct_name(&self) -> String {
         String::from("CandyMachine")
     }
 
-    fn to_raw_struct(self: &Self) -> String {
+    fn to_raw_struct(&self) -> String {
         format!("{:#?}", self)
     }
 
-    fn to_json(self: &Self) -> String {
+    fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap()
     }
 }
