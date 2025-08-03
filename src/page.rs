@@ -13,17 +13,16 @@ impl Page {
         }
     }
 
-    pub fn add(self: &mut Self, item: impl Output + 'static) {
+    pub fn add(&mut self, item: impl Output + 'static) {
         self.content.push(Box::new(item));
     }
 
-    pub fn display(self: &Self) {
+    pub fn display(&self) {
         match self.format {
             OutputFormat::AsStruct => {
                 for box_s in &self.content {
-                    let name = box_s.struct_name();
                     let output = box_s.to_raw_struct();
-                    println!("se::{name}::{output}");
+                    println!("se::{output}");
                 }
             }
             OutputFormat::AsJson => {

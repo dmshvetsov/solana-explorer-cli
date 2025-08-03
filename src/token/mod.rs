@@ -1,4 +1,4 @@
-use crate::{output::Output, pretty_string::PrettyString};
+use crate::{output::Output, pretty::string::PrettyString};
 use mpl_token_metadata::{
     accounts::Metadata,
     types::{Collection, CollectionDetails, Creator, Key, ProgrammableConfig, TokenStandard, Uses},
