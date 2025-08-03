@@ -42,7 +42,12 @@ pub fn print_error<T: Error>(err: T) {
 pub trait Output {
     fn struct_name(&self) -> String;
 
+    // TODO: rename it to pretty or something like this as i do prettyfication of Strings, Pubkeys
+    // keep this as default format
+    // add raw output as non defaul
+    /// Debug trait must be implemented, it is used to output raw structs
     fn to_raw_struct(&self) -> String;
 
+    /// Serde serialize must be implemented, it is used to serialize structs to JSON
     fn to_json(&self) -> String;
 }
